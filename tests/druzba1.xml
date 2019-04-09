@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE nta PUBLIC "-//Uppaal Team//DTD Flat System 1.0//EN" "http://www.docs.uu.se/docs/rtmv/uppaal/xml/flat-1_0.dtd">
+<nta>
+  <declaration>//Insert declarations of global clocks, variables, constants and channels.
+int[0,1] L;</declaration>
+  <template>
+    <name x="5" y="5">P</name>
+    <parameter x="5" y="20"/>
+    <declaration>//Insert local declarations of clocks, variables and constants.
+clock x;</declaration>
+  <location id="id0" x="96" y="127"><name x="48" y="96">Room</name></location><location id="id1" x="223" y="129"><name x="200" y="96">Corridor</name><label kind="invariant" x="208" y="144">x&lt;=5</label></location><location id="id2" x="351" y="128"><name x="360" y="96">Shower</name><label kind="invariant" x="341" y="143">x&lt;=10</label></location><init ref="id0"/><transition><source ref="id0"/><target ref="id1"/><label kind="assignment" x="152" y="128">x:=0</label></transition><transition><source ref="id1"/><target ref="id2"/><label kind="guard" x="264" y="104">x&gt;=3</label><label kind="assignment" x="296" y="128">x:=0</label></transition><transition><source ref="id2"/><target ref="id0"/><label kind="guard" x="248" y="40">x&gt;=7</label><nail x="351" y="64"/><nail x="96" y="63"/></transition></template>
+  <instantiation>//Insert process assignments.
+Kim := P();
+Gerd := P();</instantiation>
+  <system>//Edit system definition.
+system Gerd, Kim;</system>
+</nta>

@@ -1,0 +1,1031 @@
+2019-03-08  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : utap: fixed FP usage detection for function calls
+
+2019-03-06  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : build: options and scripts for compiling on mac.  Mac uses '@'
+	character in linker flags so it confuses the scripts, thus I changed
+	all the option files to use '|' instead of '@' ('|' is unlikely to
+	be used by anyone due to its connotation with a pipe in shell).
+
+2018-12-21  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : engine: added many distributions to sample from: arcsine, beta,
+	gamma, poisson, weibull, tri (triangular)
+
+2018-12-17  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : engine: added override for all virtual methods
+
+2018-06-08  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : SMC: set the default number of runs to 1 in simulate queries (no
+	need to specify #runs if just one simulation is needed)
+
+2018-06-07  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : SMC: fixed histogram when DoF<1, cleaned up compiler warnings
+
+2018-06-06  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : SMC: refactored the property syntax and added a possibility to
+	specify the explicit number of runs uniformly, breaks "simulate"
+	query syntax
+
+2018-04-12  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed some undefined-behavior by refactoring variable-vector API
+
+2018-02-02  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : build: started transitioning to g++-7 with C++17: 64bit target
+	is fine compiler crashes while building for 32bit
+
+2017-11-09  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed tracer for CORA traces
+
+2017-12-03  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : added many C math functions, plus normal distribution
+
+2017-10-13  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: fixed if-then-else grammar to allow unbounded amount of
+	if-the-else statements in a row added C++11 "override" to virtual
+	functions and fixed some
+
+2017-06-02  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: added embedded queries to XTA format
+
+2017-06-02  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: fixed range inclusion check
+
+2016-11-25  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed location problem in grammar and a few warnings
+
+2016-01-07  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : minor cleanup, fixing some warnings
+
+2015-10-05  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: clean up from trivial errors and warnings
+
+2015-10-05  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: fixed tracer utility to read the new transition format
+	with selects
+
+2015-04-22  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : utap: fixed parsing of xml files without queries and formulas
+	with line breaks
+
+2015-03-13  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : build: added windows launcher, changed to console executable
+	(hopefully there will fewer streange crashes on windows) and other
+	small fixes
+
+2015-02-20  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: disabled "it may be needed to add a guard involving the
+	target invariant"
+
+2014-09-29  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : Rewrote the query list
+
+2014-09-21  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : 1) Added tracing for 'probaSimulate', 'probaEChecker',
+	'compareProbaCheck' and 'MitlProbaChecker' 2) Fixed the bug getting the error location in command line 3) Fixed the bug exporting the queries into the query file
+
+2014-08-08  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : UTAP: fixed some missing functions for SMC and MITL features
+
+2014-07-01  Alexandre David <adavid@cs.aau.dk>
+
+	* : Managed to solve Jin's problem.
+
+2014-06-18  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : Engine: updated to libxml2-2.9.1 and added instructions how to
+	cross-compile boost and libxml2 for win32.
+
+2014-05-22  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Check that dynamic constructs are only used on edges, throw type
+	error if a template is referenced in a dynamic construct before
+	being defined, ensure to delete the process variables when they go
+	out of scope i.e. for sum (t:T)(e) t is only bound for the
+	expression e
+
+2014-05-21  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : The xml format for queries using in command line:
+	<formula>..</formula> instead of <property> .. </property>
+
+2014-05-19  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : Get the functionality of the runtime error for the symbolic
+	simulator. If a runtime error happens during query verification, the
+	GUI now understands whether the error happened in the model or in
+	the query expression. The error message is shown correctly.
+
+2014-04-09  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : made plotting of arbitrary clock expressions (guard and
+	invariants) work
+
+2014-04-09  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Begun changes to fix problem with the dynamic sum
+
+2014-04-09  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Changed parser for mitl. No more /\ and \/
+
+2014-04-09  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : removed unused code
+
+2014-04-09  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : ; to , in range of MITL formulas
+
+2014-04-01  Alexandre David <adavid@cs.aau.dk>
+
+	* : Some cleanups.  Changed use of hybrid.  UPPAAL now works on PTA
+	too.  Fixed pb with extrapolation for PTA.
+
+2014-03-24  Alexandre David <adavid@cs.aau.dk>
+
+	* : Updated expression_t::isTrue().
+
+2014-03-17  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : Added new functions  to catch the runtime error for the symbolic
+	simulator and verifier. Changed the function to print the output
+	line on the terminal for reading queries from the model xml or the
+	query file. Fixed the bug when showing the problems in the problem
+	table in the editor of the GUI.
+
+2014-02-04  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Ensure dynamic templates are only used with SMC properties
+
+2014-02-03  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : updated keyword highlighting
+
+2014-01-27  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : removed unused iterator
+
+2014-01-27  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Check that dynamic process variables are indeed known - segfault
+	could occur before if the Template the process variable was
+	associated to was not a dynamic template.
+
+2014-01-22  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : corrected typecheck for dynamic processes
+
+2014-01-09  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : Added comment and remove unuse code
+
+2014-01-09  Wei Zhao <zhaow@cs.aau.dk>
+
+	* : Changed the verifier in server. It can read the queries from the
+	xml file (Open: Output printed on the screen)
+
+2013-11-26  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : check that result is not NULL,  and avoid double invocation of
+	getDynamicTemplate
+
+2013-11-15  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed typo. Avoid undefined behavior.
+
+2013-11-15  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed dead code (had a mem leak too).  Fixed exception - right
+	one is thrown.  Added a test to guards for cheaper smc.
+
+2013-11-06  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed keywords.
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : removed commented code
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : check that the templates used in foreach /forall / exists does
+	exist
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : fix to ensure location han be handled by Dynamic evaluation
+	expressions
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Plotting: foreach (...)  added for dynamic templates
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : added forall to MITL, fixed bugs in dynamic expressions in the
+	probachecker
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Allowed use of references in instantiation of dynamic templates
+	(to allow  channels as parameters).
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : proper toString for the dynamic expressions
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : dynamic exists
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : More consistent syntax
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : parsing of forall and exists for process bound variables
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : made dynamic systems work with simulate query
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : type check to ensure references are not passed in parameters of
+	dynamic templates.
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Typecheck of dynamic templates
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : bug fixes - and moved spawning out of virtual machine
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Fixed problem with multiple dynamic templates
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Begun changes to facilitate compilation of dynamic templates
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : creation of spawn expression in utap
+
+2013-10-24  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : added dynamic templates to system
+
+2013-10-03  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed some errors found by clang.  Fixed some smc errors linked
+	to double.  Added asserts.
+
+2013-09-24  Zhenkui Zhang <zhzhang@cs.aau.dk>
+
+	* : [TIGA-SMC] compile tigasmc quary and transport the result
+	expression through the Tiga pipeline
+
+2013-08-31  Alexandre David <adavid@cs.aau.dk>
+
+	* : The function random is not computable at compile time.
+
+2013-08-22  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added support for double. EXPERIMENTAL Changed semantics of
+	meta.  Updated reftests: meta variables are not printed any more,
+	0,1 printed as false,true when applicable. Some stupid spaces are
+	also gone.
+
+2013-04-16  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed bug in VM. Added warning.
+
+2013-03-06  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed a segfault. At least detect and work-around it. The true
+	source of the bug has not been fixed.
+
+2013-02-14  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed parsing of double.  Handle exponential rate <= 0. I did
+	NOT want to do this but sometimes it is difficult to write the
+	proper guards (may be arbitrary expressions).
+
+2012-12-06  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* :     Changed Syntax for mitl (MITL keyword has been replaced by Pr).      Introduced shorthand for box and diamond operator in mitl.
+
+2012-09-24  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed precedence problem.
+
+2012-08-20  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed some compiler warnings (and some potential bug about
+	nested function calls: when the outer function is void then it did
+	not mark its beginning, where its arguments are stored, see
+	program.cpp)
+
+2012-08-08  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added + operator for Ecdar.
+
+2012-05-09  Alexandre David <adavid@cs.aau.dk>
+
+	* : Support for sums of clocks.
+
+2012-04-26  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : updated type checking of filtered simulate
+
+2012-04-24  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed pSimulateReach.
+
+2012-04-19  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Filtered simulate query added
+
+2012-04-12  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added cos, sin, exp, log, and random.
+
+2012-03-14  Danny B. Poulsen <dannybp@cs.aau.dk>
+
+	* : Fixed typechecking of statistical formulas (Pr[<= ](<>...) and
+	Pr[<=] ([] ...) )- error introduced while implementing Until for
+	statistical properties
+
+2012-02-29  Alexandre David <adavid@cs.aau.dk>
+
+	* : Changed the grammar. The new one is simplified and will not
+	accept nested tctl formulas any more.
+
+2012-02-23  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed compilation for mitl engine.  Changed type of rates, now
+	floating point.  Desactivated support for ode.
+
+2012-01-13  Alexandre David <adavid@cs.aau.dk>
+
+	* : Solved pb with clocks.
+
+2011-12-23  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed some dead code.  Added the simulate property.  Not
+	working against the GUI, Marius will fix this.
+
+2011-11-24  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed bugs in smc.  Added XML_PARSE_RECOVER.
+
+2011-10-11  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed overflow problem against the GUI. No clue why this shows
+	up only in some version of ecdar and not elsewhere.
+
+2011-09-30  Arrou-Vignod Else <elsa@cs.aau.dk>
+
+	* : Added missing ifdef ENABLE_SBML Done by Elsa Arrou-Vignod
+
+2011-09-27  Arrou-Vignod Else <elsa@cs.aau.dk>
+
+	* : Changes brought to add SBML translator in utap Done by Elsa
+	Arrou-Vignod
+
+2011-07-17  Alexandre David <adavid@cs.aau.dk>
+
+	* : Work-in-progress of an ugly hack to support double -- to some
+	extent.
+
+2011-06-01  Alexandre David <adavid@cs.aau.dk>
+
+	* : Hacked CSP sync. Work-in-progress, needs to be fixed.
+
+2011-05-27  Peter Bulychev <peter@cs.aau.dk>
+
+	* : added branches to XTA format
+
+2011-05-26  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed wrong non-determinism detection in smc.  Fixed parser rule
+	for rates.  Removed wrong exprTrue in parser.
+
+2011-04-26  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : changed + to # for the number of steps in probabilistic queries
+
+2011-01-21  Alexandre David <adavid@cs.aau.dk>
+
+	* : remove assert
+
+2011-01-20  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed deprecated asserts.
+
+2011-01-10  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added smc checker for Pr(..) >= Pr(..)
+
+2010-12-20  Alexandre David <adavid@cs.aau.dk>
+
+	* : Implemented int rates.
+
+2010-12-13  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added prop E[time|steps <= value; max_runs](min|max: expr).
+
+2010-11-10  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added proper implementations in PrettyPrinter.
+
+2010-11-08  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added option.
+
+2010-11-05  Alexandre David <adavid@cs.aau.dk>
+
+	* : Activated lsc syntax.  Added histogram generation.
+
+2010-11-01  Alexandre David <adavid@cs.aau.dk>
+
+	* : Enabled some LSC parts by default.
+
+2010-10-20  Alexandre David <adavid@cs.aau.dk>
+
+	* : Implemented statistical model-checker.  Still work to be done to
+	improve and fix some known issues.  See FIXME.
+
+2010-08-09  Alexandre David <adavid@cs.aau.dk>
+
+	* : Less verbose debug print.
+
+2010-06-03  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed overflow detection to skip 0.
+
+2010-04-06  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed bug 486.
+
+2010-03-18  Arild Martin M�ller Haugstad <arild@cs.aau.dk>
+
+	* : Experimental CMake-based alternative build-system for server
+
+2009-12-09  Alexandre David <adavid@cs.aau.dk>
+
+	* : TIGA: Changed syntax for simulation properties. Now it's more a
+	more natural (A || B) <= C ... kind of syntax.  UPPAAL: Added
+	support for clock constraints on receiving broadcast
+	synchronizations. The simulators (server) had to be fixed too. The
+	GUIs are not affected.
+
+2009-11-13  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed explicit enumeration.
+
+2009-11-03  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed side-effect asserts.  Fixed compilation for Windows.
+
+2009-10-20  Alexandre David <adavid@cs.aau.dk>
+
+	* : Implemented consistency checking.  Updated transition filter for
+	open systems.  Added fed_t::getBounded().
+
+2009-10-05  Alexandre David <adavid@cs.aau.dk>
+
+	* : Changed the semantics of simulation games. Now UPPAAL considers
+	simulation of open systems. When there is a synchronization, it is
+	typed in the sense that a broadcast sync is different from a binary
+	sync, which is different from a "half" sync.  Simulation is using
+	the sync label now, taking full advantage of the syntax.  The action
+	label is ignored for simulation checking.  Updated test suite to
+	reflect the syntax change.  Bumped version number.  Changed internal
+	coding of the turned-based variable for simulation checking.
+	Changed syntax of the property, it is now prefixed by "simulation:".
+	I will add "refinement:" soon.  Separated code for the
+	transitions+successors from the Transition/Successor-Filter files.
+	The change is now more significant.  Added a place holder for a
+	future copy constructor of TA systems (utap).
+
+2009-09-28  Sandie Balaguer <sandie@cs.aau.dk>
+
+	* : 
+
+2009-08-26  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added a comment in HashTable.  Removed dead code and useless
+	variables.
+
+2009-08-11  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed bug 469.
+
+2009-06-25  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed bug 474.
+
+2009-05-14  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added support for Gantt charts in the server.  Fixed simulation
+	game: * distinguish (un)controllable actions to duplicate * take into account forced actions
+
+2009-04-25  Arild Martin M�ller Haugstad <arild@cs.aau.dk>
+
+	* : prob: new query property; Pmax
+
+2009-03-19  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed assert.
+
+2009-03-18  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed bug 465.
+
+2009-03-16  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added functionality to AbstractJob to store expressions.  Added
+	functionality to ModelChecker to return feedbacks.  Added handling
+	of "sup: list of expr" property (with expr being state predicate
+	without side-effect or clock constraints or clock names).  Fixed
+	traces for leadsto. This is a theoretical fix since the bug has not
+	appeared yet.  Somewhat updated other checkers to handle the
+	changes, they may be broken.  Added a functionality to the DBM lib
+	to handle sup properties easily.
+
+2009-03-10  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed previous inf & sup.  Started to add support for (new)
+	sup.
+
+2009-03-03  Alexandre David <adavid@cs.aau.dk>
+
+	* : Made possible to print states with federations.  Added 'sum' to
+	the language, same syntax as exists & forall but limited to integer
+	expressions only.  It's very useful in tctl expressions when ranging
+	over processes.
+
+2009-03-02  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed implementation for Mani's robust reachability algorithm.
+
+2009-01-26  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed C string library header inclusion problem (GCC 4.3
+	complains)
+
+2008-12-19  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed partially poor performance with many locations in the
+	model.  Fix is trivial, but the parsing performance gain is more
+	than 2x (according to gprof).  This is due to stupid std::list::size
+	implementation which should be avoided as plague.  Next, Symbol::add
+	in system/Symbol.cpp should be redesigned, which now naively seeks
+	to the end of the linked list just to add a new sibling.
+
+2008-10-20  Alexandre David <adavid@cs.aau.dk>
+
+	* : Extended the typechecker to accept x'==integral instead of
+	x'==integer. It is a natural extension when considering that bool
+	and x' expressions have the same range.
+
+2008-10-03  Arild Martin M�ller Haugstad <arild@cs.aau.dk>
+
+	* : branching edges partially supported in server (with
+	ENABLE_BRANCHING) Combination with select will not currently work, support for
+	simulator is missing, and there is a bug in the dot-formatting when
+	replying to getTransitions.  (while the problem with getTransitions is related to the previous
+	point --- simulator support not yet considerd/implemented --- the
+	GUI will also call getTransitions at various other points, notably
+	right after calling modelCheck...)
+
+2008-09-26  Alexandre David <adavid@cs.aau.dk>
+
+	* : Extended control_t* to work with default parameters.
+
+2008-09-09  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : removed redundant typedef (warned by g++-4.3.1)
+
+2008-09-05  Alexandre David <adavid@cs.aau.dk>
+
+	* : Updated localization.
+
+2008-09-03  Alexandre David <adavid@cs.aau.dk>
+
+	* : Starting to localize parser errors.  Still need to do some
+	replacements for parser.cc.
+
+2008-08-01  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed compilation with i586-mingw32msvc-g++.
+
+2008-07-31  Alexandre David <adavid@cs.aau.dk>
+
+	* : Reject clock differences too.
+
+2008-07-31  aymie <aymie@3b6c4bc8-9f06-0410-8197-9f1a2e675645>
+
+	* : Changed the location of the mapping of PO Tiga actions to the
+	compiler and solved some segfault issues.
+
+2008-07-30  Alexandre David <adavid@cs.aau.dk>
+
+	* : Fixed a warning in modelchecker.cpp.  Fixed parsing of
+	observations.
+
+2008-07-16  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed AF2, AG2, EG2, and EF2 types of quantifiers.  They were
+	work-in-progress that have been there for too long.  Fixed minor
+	printing bug for control properties.  Added properties for PO Tiga.
+	Added bootstrap code for PO Tiga.
+
+2008-06-11  Alexandre David <adavid@cs.aau.dk>
+
+	* : Improved warning message.
+
+2008-04-25  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : attempt to fix bug 428: allow typechecker to accept (guard ||
+	integral) expressions as (integral || guard) are accepted. Same
+	applies to invariants.
+
+2008-02-21  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : compilation fix for gcc-3.4.5 (workaround for strchrnul, since
+	it is not in 3.4.5)
+
+2007-12-12  Alexandre David <adavid@cs.aau.dk>
+
+	* : Cleaned-up stop watch detection.  Added detection of more
+	unsupported features in TIGA (priorities + stop watches).
+
+2007-11-29  Alexandre David <adavid@cs.aau.dk>
+
+	* : Makefile now uses the xml2-config found by configure.
+
+2007-10-29  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added stop watches.  Moved mis-used inline declarations in
+	System.h.  The server still needs to be updated for the concrete
+	simulator. The rest should be fine.
+
+2007-10-04  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed signalflow analyzer for forall and exists expressions
+	fixed some pedantic C++ warning issues
+
+2007-05-03  Alexandre David <adavid@cs.aau.dk>
+
+	* : Implemented Mani's robust reachability algorithm.
+
+2007-04-03  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : fixed signal flow for incompletely partitioned specifications
+	fixed some gcc-4.1.2 compiler warnings
+
+2007-03-01  John H�kansson <john@it.uu.se>
+
+	* : Added syntax-switches for parsing expression-lists and XTA
+	processes
+
+2007-02-22  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added 'mkdir src/utap', since svn seems to eat the empty
+	directory.
+
+2007-02-22  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : - Bumped UTAP version number to 0.91.  - Updated Makefile.am for new files - Added automatic ChangeLog generation - Updated NEWS file with changes in 0.91
+
+2007-02-09  Alexandre David <adavid@cs.aau.dk>
+
+	* : Extended syntax of control_t*.  Fixed bug with -T.  Reduced
+	usage of 'promote' in backward propagation.  Changed semantics of
+	evaluation for control_t* prefix expressions.  Removed isConstant
+	from Expression.
+
+2007-01-29  Alexandre David <adavid@cs.aau.dk>
+
+	* : Sync my repository a little more.  This is for robust
+	reachability.
+
+2006-12-22  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 372.
+
+2006-12-11  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 336.
+
+2006-12-04  Alexandre David <adavid@cs.aau.dk>
+
+	* : Added color to uppaal test script.  Removed the TIGA_TEST flag
+	switch, it is always on now.  Added an extension for inf: and sup:
+	properties. Only the parser supports it. Tiga accepts more formulas
+	but ignores the new path-formula arguments.
+
+2006-11-30  Alexandre David <adavid@cs.aau.dk>
+
+	* : - Added option for no option in the setup.  - Added syntax extension to support inf & sup   parameter: formula.  - Fixed SystemClockAccessor to depend on the state   since clock mapping may change.  - Fixed an ugly leak (uh!) in the strategy and   also made the generation faster (no search in   the state set for states anymore).
+
+2006-11-17  John H�kansson <john@it.uu.se>
+
+	* : introduced StatementBuilder (towards fixing enhancement/bug#120)
+	Also added a syntax switch, and optional  parameter to
+	'parseProperty'.
+
+2006-11-13  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 367 and bug 370, in addition to a few bugs introduced
+	during the 4.1 development phase.
+
+2006-11-05  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Merged changes between rev. 2791 and 2792 from the 4.0 branch.
+	Fixes bug 352.
+
+2006-11-05  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added commen on how to invoke the script.
+
+2006-11-05  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added test script for pretty printer.  Changed invocation of pretty printer.  Changed syntax check utility to set return code in case of errors.
+
+2006-10-13  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Merged changes from 4.0 branch between rev. 2757 and 2758. Fixes
+	bug 358.
+
+2006-10-04  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : minor code cleanup, added a few more comments
+
+2006-09-23  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Refined side-effect analysis. Fixes bug 348.
+
+2006-08-10  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : rename IO interface into timed automata signal flow
+
+2006-07-18  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : don't add conflicting nodes (neither to IUT nor to Env) increase
+	color contrast for non-colored printer emphasize the observable
+	channels with "peripheries=2"
+
+2006-07-14  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Further clean up.
+
+2006-07-13  Marius Mikučionis <marius@cs.aau.dk>
+
+	* : added partitioning into Environment and IUT of the system
+	removed constant expressions from analysis
+
+2006-07-02  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed doxygen comments.
+
+2006-07-02  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Renamed check utility to syntaxcheck.
+
+2006-06-27  Emanuael Fleury <fleury@cs.aau.dk>
+
+	* : Changed the flag ENABLE_GAMES into ENABLE_TIGA
+
+2006-06-21  Emanuael Fleury <fleury@cs.aau.dk>
+
+	* : - First step to synthesize safety properties   - Added a 'weak until' operator   - Added toString support for (weak) until   - Checked if utap was not broken with 'make test'   - Added win/lose formula extraction   - Checked on tiga-reftest that nothing was broken
+
+2006-06-20  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Replaced include of stdint.h with inttypes.h on platforms
+	without stdint.h.
+
+2006-06-20  Alexandre David <adavid@cs.aau.dk>
+
+	* : Replaced tabulations by 8 spaces.
+
+2006-06-12  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Made TIGA keywords conditional so that they only have effect
+	with ENABLE_GAMES.  Removed print() and atomic() from TCTLExpression.
+
+2006-06-10  Emanuael Fleury <fleury@cs.aau.dk>
+
+	* : - Fixed a mis-use of property() for T_CONTROL (my fault) - Released a bit the nesting detector for control formula - Performed a non-regression test (ok) - Removed the comments in keywords.gperf - Adding some pretty printing for CONTROL and A_UNTIL
+
+2006-06-08  Emanuael Fleury <fleury@cs.aau.dk>
+
+	* : Committing to synchronize with Alexander.
+
+2006-06-08  Emanuael Fleury <fleury@cs.aau.dk>
+
+	* : Fixing some inconsistencies in my way of using #ifdef...
+
+2006-06-08  Emanuael Fleury <fleury@cs.aau.dk>
+
+	* : Committing common.h (I forgot to include it last time).
+
+2006-06-07  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added full CTL parsing.
+
+2006-06-02  Alexandre David <adavid@cs.aau.dk>
+
+	* : Removed #ifdef ENABLE_GAMES since the addition was
+	non-intrusive.
+
+2006-06-01  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Changed tab to space.
+
+2006-06-01  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Changed first line off all files to force emacs to save with
+	space characters rather than tabs.
+
+2006-05-10  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 322.
+
+2006-04-29  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added new tracer utility. No longer depends on UTAP. Uses the
+	new UPPAAL intermediate format. In constrast to the old tracer
+	utility, this should work with any UPPAAL model.
+
+2006-03-23  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed compilation on Mac OS
+
+2006-03-19  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Disallowed initialiser on arrays indexed by scalar set.
+
+2006-03-16  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added type checking for bug 279. Resolves the bug.
+
+2006-03-16  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Arrays are now parsed by calling typeArrayOfSize() rather than
+	providing the dimension as a parameter to declVar() and similar
+	methods. Towards a fix for bug 279.
+
+2006-03-15  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added RATE type to list of non-prefix types.
+
+2006-03-15  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 292 and 293.  Removes the interpreter from UTAP. Thus the tracer utility no longer
+	works, but it should be replaced by a new utility using the Uppaal
+	compiler output.  Started work on a fix for bug 279.
+
+2006-03-09  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Removed unused code.
+
+2006-03-08  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Incremented version number to Beta1-pre5.  (and forgot to check in typechecker.h in prev. rev.)
+
+2006-03-08  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed bug that destroyed info about arrays in records.
+
+2006-03-08  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed toString() for DOT expressions.
+
+2006-03-05  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Removed call-by-reference parameter for increased clarity of
+	code.
+
+2006-03-05  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Changed getSymbol() on function call expressions to return the
+	symbol of the function.
+
+2006-03-04  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Changed syntax for partial instantiation such that a type must
+	be given for each parameter.
+
+2006-03-03  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Extended syntax for partial instantiation of templates.
+
+2006-03-02  John H�kansson <john@it.uu.se>
+
+	* : Fixed bug in priorities: thanx Alexandre for finding this.
+
+2006-02-28  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed bug in type_t::getSub() (TYPENAME was propagated).  Fixed structural equivalence check for == and != operators.  Added substitution of process arguments in type of dot expressions
+	(needed for the structural equivalence check).
+
+2006-02-27  John H�kansson <john@it.uu.se>
+
+	* : - Changed the syntax of ChanElement to be a ChanExpression or
+	T_DEFAULT.  - Expressions are type checked to make sure that they indeed resolve
+	to channels or arrays of channels.  - Changed the representation in TimedAutomataSystem to provide a
+	  list of pairs of priority and an expression evaluating to a channel
+	reference or a reference to an array of channels.  - Changed the compiler to retrieve the channel-priority list and
+	evaluate the expressions to figure our which channel or channels
+	this priority applies to.
+
+2006-02-23  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Added type checking for template set specifications. Allowed
+	constant scalars in template set specifications. Fixes bug 264.
+
+2006-02-22  John H�kansson <john@it.uu.se>
+
+	* : Changed priority syntax to "chan priority" for defining
+	priorities on channels (changed already in rev 1551)
+
+2006-02-21  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Changed representation of primitive types: They now have their
+	own 'kind' value.  Made primitive types like int, bool and clock keywords. Changed
+	builder interface to simplify how primitive types are processed.
+
+2006-02-21  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Replaced use of C strings with STL strings.  Fixed a crash bug caused by syntax errors in records.
+
+2006-02-13  John H�kansson <john@it.uu.se>
+
+	* : Changed keyword 'chan_priority' to 'priority' and removed #ifdef
+	ENABLE_PRIORITY
+
+2006-02-11  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Made type_t::toString() constant.
+
+2006-02-08  John H�kansson <john@it.uu.se>
+
+	* : Priority extension: removed redundant type check which broke
+	template sets.
+
+2006-02-05  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 256.
+
+2006-01-19  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed name space problem.
+
+2006-01-17  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 241.
+
+2006-01-11  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixes bug 248.
+
+2006-01-08  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Removed unneeded error handling rules.
+
+2006-01-03  Gerd Behrmann <behrmann@cs.aau.dk>
+
+	* : Fixed comment.
+

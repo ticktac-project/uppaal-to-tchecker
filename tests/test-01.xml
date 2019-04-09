@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+const int[0,10] NB_CLOCKS = 5;
+
+typedef scalar[NB_CLOCKS] clock_id_t;
+
+clock ALL_CLOCKS[clock_id_t];
+</declaration><template><name x="5" y="5">Template</name><parameter>clock &amp;c, const clock_id_t id</parameter><declaration>// Place local declarations here.
+clock x;
+clock X[10];
+</declaration><location id="id0" x="-16" y="24"></location><location id="id1" x="-56" y="-576"></location><init ref="id1"/><transition><source ref="id1"/><target ref="id0"/><label kind="select" x="-52" y="-301">e : clock_id_t</label><label kind="guard" x="-52" y="-286">e == id</label><label kind="assignment" x="-52" y="-256">c = 5</label><nail x="208" y="-520"/></transition><transition><source ref="id1"/><target ref="id0"/><label kind="select" x="-164" y="-377">e: clock_id_t, f:clock_id_t</label><label kind="guard" x="-164" y="-362">e != id</label><label kind="assignment" x="-164" y="-332">c = 0</label><nail x="-184" y="-328"/></transition></template><system>// Place template instantiations here.
+Process(const clock_id_t id) = Template(ALL_CLOCKS[id], id);
+
+// List one or more processes to be composed into a system.
+system Process;</system></nta>

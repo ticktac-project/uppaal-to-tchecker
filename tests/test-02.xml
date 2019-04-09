@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+typedef int values_t[3][2];
+
+const int MIN = 0;
+const int MAX = 1;
+const int values[3][2] = { { 0, 10 }, { 5, 8 }, { 3, 6 } };
+values_t values2 = values;
+
+const int index = 0;
+int v[2] = { 0, 10 };
+
+typedef scalar[values[index][1]] toto_t;
+
+toto_t tutu;</declaration><template><name x="5" y="5">Template</name><parameter>const int c0, const int  &amp;max</parameter><declaration>// Place local declarations here.
+int c = c0;
+values_t myvalues = values;</declaration><location id="id0" x="-80" y="-144"></location><init ref="id0"/><transition><source ref="id0"/><target ref="id0"/><label kind="guard" x="-140" y="-174">c &lt; max</label><label kind="assignment" x="-140" y="-144">c++</label><nail x="-80" y="-8"/><nail x="-184" y="-8"/></transition></template><system>// Place template instantiations here.
+Process = Template(values[index][MIN], values[index][MAX]);
+
+// List one or more processes to be composed into a system.
+system Process;</system></nta>

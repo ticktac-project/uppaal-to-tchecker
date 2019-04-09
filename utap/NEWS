@@ -1,0 +1,90 @@
+New in 0.93
+This is a snapshot of UTAP as used in prerelease of UPPAAL 4.1.20.
+Notable changes:
+- Fixed tracer for newer engine trace format.
+- Fixed pretty printer handling of embedded queries.
+
+
+New in 0.91
+
+This is a snapshot of UTAP in the latest development version of 
+UPPAAL. Highlights of this release include:
+
+- Bugs fixed in this release: 322, 336, 348, 351, 352, 353, 
+  358, 364, 367, 370, 372, 383.
+- CTL parsing has been enhanced to allow nesting of formulas.
+- TIGA support was added.
+- Improved compilation on Windows.
+- Syntax check utility was renamed to 'syntaxcheck'
+- Type checker was cleaned up
+- IO Interface utility renamed to 'taflow'
+- Improved pretty printer
+- Refactored SystemBuilder into SystemBuilder and StatementBuilder
+
+
+New in 0.90
+
+This is the version of UTAP used in UPPAAL 3.6 Beta 3.  The tracer
+utility no longer uses libutap. Instead it parses the UPPAAL
+intermediate format introduced in UPPAAL 3.6 Beta 1. 
+
+Position tracking (the mechanism used to map an expression to some
+position in the input file) has been reimplemented. The representation
+of types in UTAP has been reimplemented. 
+
+The interpreter for expressions has been removed. It was broken and
+could not be fixed without reimplementing major parts of the UPPAAL
+interpreter (not included in UTAP). This also means that errors
+related to the range of variables or expressions are no longer
+detected by the TypeChecker class.
+
+New in 0.80
+
+This is the version used in UPPAAL 3.6 Alpha 1. It contains a lot of
+bug fixes since version 0.70. Likely there are some API
+incompatibilities, but it should not be hard to adapt your program to
+version 0.80. Notice that configure now accepts the --enable-cora
+option to enable the extensions used by UPPAAL CORA.
+
+New in 0.70
+* This is a backport of the internal development code
+* This is the parser used in Uppaal 3.4.8.
+* Requires at least libxml2 2.6.10.
+* The top level parser invocation functions like parseXTA now only
+  run the type checker if the previous pass over the input did not
+  produce any errors. This should make the parser much more robust.
+* As always, we have fixed a lot of bugs.
+* Most of the changes relate to the new syntax (which is used in 
+  future versions of Uppaal).
+* The most visible API change is that transition_t has been renamed 
+  to edge_t.
+
+New in 0.60
+* This is a backport of the internal development code
+* API changes include a split of SystemBuilder into several
+  classes.
+* Now requires at least libxml2 2.6.0.
+* This is the parser used in Uppaal 3.4.6.
+* Notice that header files now use a .h suffix.
+
+New in 0.50
+* Fixed bugs 32, 43, 46, 54, 58, 60, 82, 85, 88, 93, 97	and more
+* Added tracer example program: Reads trace files in UPPAAL XTR format.
+* Notice that some of the API has changed.
+
+New in 0.40
+* Bug fixes
+* Reimplemented expression representation
+
+New in 0.30
+* Bug fixes
+* Reimplementation of type and symbol handling, see the new
+  symbol_t, type_t and frame_t classes.
+* Reimplementation of TimedAutomataSystem construction and  
+  type checking. The construction is now handled by the 
+  SystemBuilder class and the type checking is done in a
+  seperate pass by the new TypeChecker class.
+* Range checking has been moved to another class: RangeChecker
+
+New in 0.10
+* Initial release
