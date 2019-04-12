@@ -1,0 +1,19 @@
+/*
+ * This file is part of the TChecker Project.
+ * 
+ * See files AUTHORS and LICENSE for copyright details.
+ */
+
+#ifndef UPPAAL_TO_TCHEKER_UTOT_VERSION_HH
+# define UPPAAL_TO_TCHEKER_UTOT_VERSION_HH
+
+# cmakedefine UTOT_MAJOR_VERSION  @UTOT_MAJOR_VERSION@
+# cmakedefine UTOT_MINOR_VERSION  @UTOT_MINOR_VERSION@
+# cmakedefine UTOT_PATCH_VERSION  @UTOT_PATCH_VERSION@
+
+# define UTOT_VERSION \
+    "utot (uppaal-to-tchecker) @UTOT_MAJOR_VERSION@.@UTOT_MINOR_VERSION@" \
+    ".@UTOT_PATCH_VERSION@"
+
+#endif /* UPPAAL_TO_TCHEKER_UTOT_VERSION_HH */
+
