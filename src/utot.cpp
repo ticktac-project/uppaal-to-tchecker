@@ -14,7 +14,11 @@
 #include <filesystem>
 #include "utot-version.hh"
 #include "utot-translate.hh"
+#include "utot-tchecker.hh"
 #include "utot.hh"
+#include "../utap/src/utap/typechecker.h"
+
+using namespace utot;
 
 enum file_format_t {
     FORMAT_NONE = 0,
@@ -61,9 +65,7 @@ static file_format_t enforced_format = FORMAT_NONE;
 static input_language_t enforced_language = LANG_NONE;
 static bool erase_output = false;
 static const char *input_filename = nullptr;
-static bool close_input = false;
 static const char *output_filename = nullptr;
-static bool close_output = false;
 
 static const char OPTION_STRING[] = {
     SO_DEBUG,
@@ -180,25 +182,20 @@ s_parse_options (int argc, char **argv)
           break;
 
           case ':':
-            std::cerr << "missing argument to option '" << optopt << "'."
-                      << std::endl;
+            err ("missing argument to option '", optopt, "'.\n");
           break;
           case '?':
           default:
             assert(c == '?');
-          throw std::exception ();
+          throw utot::exception ();
         }
     }
   argc -= optind;
   argv += optind;
 
   if (argc > 2)
-    {
-      std::cerr << "exceed number of arguments." << std::endl;
-      throw std::exception ();
-    }
-
-  if (argc == 1)
+    err ("exceed number of arguments.\n");
+  if (argc >= 1)
     input_filename = argv[0];
   if (argc == 2)
     output_filename = argv[1];
@@ -232,25 +229,24 @@ s_compute_input_language (const char *filename, file_format_t &format)
           format = FORMAT_XML;
         }
       else
-        UTOT_VERBOSE (0, "unknown extension '%s'.\n", extpos);
+        warn ("unknown extension '%s'.\n", extpos);
     }
 
   if (enforced_language != LANG_NONE)
     {
       if (enforced_language != result)
-        UTOT_VERBOSE (0, "warning: enforced language '%s' for a file with "
-                         "extension %s.\n", LANG_STRINGS[enforced_language],
-                      extpos);
+        warn ("enforced language '", LANG_STRINGS[enforced_language],
+              "' for a file with extension ", extpos, ".\n");
       result = enforced_language;
     }
 
   if (enforced_format != FORMAT_NONE)
     {
       if (enforced_format != format)
-        UTOT_VERBOSE (0, "warning: enforced file format '%s' for a file with "
-                         "extension %s.\n", FORMAT_STRINGS[enforced_format],
-                      extpos);
-      result = enforced_language;
+        warn ("enforced file format '", FORMAT_STRINGS[enforced_format],
+              "' for a file with extension ", extpos, ".\n");
+
+      format = enforced_format;
     }
   return result;
 }
@@ -266,34 +262,23 @@ s_file_exists (const char *filename)
   return result;
 }
 
-static void
-s_open_output_file (const char *filename, std::ostream &out)
+static std::streambuf *
+s_open_output_file (const char *filename)
 {
   if (filename == nullptr)
     {
       output_filename = "stdout";
-      out.rdbuf (std::cout.rdbuf ());
-      return;
+      return std::cout.rdbuf ();
     }
 
   if (s_file_exists (filename) && !erase_output)
-    {
-      std::cerr << "output file '" << output_filename << "' already exists."
-                << std::endl;
-      throw std::exception ();
-    }
+    err ("output file '", output_filename, "' already exists.");
 
-  std::ofstream ofs (filename, std::ios_base::out);
-  if (ofs.good ())
-    {
-      out.rdbuf (ofs.rdbuf ());
-    }
-  else
-    {
-      std::cerr << "can't open file '" << output_filename << "'." << std::endl
-                << "reason: " << strerror (errno) << std::endl;
-      throw std::exception ();
-    }
+  std::filebuf *result = new std::filebuf ();
+  if (result->open (filename, std::ios_base::out) == nullptr)
+    err ("can't open file '", output_filename, "': ", strerror (errno));
+
+  return result;
 }
 
 static std::string
@@ -309,14 +294,10 @@ s_read_inputfile (const char *filename)
     {
       buf = ifs.rdbuf ()->open (filename, std::ios_base::in);
       if (buf == nullptr)
-        {
-          std::cerr << "can't open file '" << filename << "'." << std::endl
-                    << "reason: " << strerror (errno) << std::endl;
-          throw std::exception ();
-        }
+        err ("can't open file '", filename, "': ", strerror (errno));
     }
-  UTOT_VERBOSE (0, "reading input from: %s.\n",
-                filename ? filename : "standard input");
+  msg<VL_PROGRESS> ("reading input from: ",
+                    filename ? filename : "standard input", ".\n");
   oss << buf;
   oss.flush ();
   return oss.str ();
@@ -342,56 +323,61 @@ main (int argc, char **argv)
               s_compute_input_language (input_filename, fmt);
 
           if (lang == LANG_NONE)
-            {
-              std::cerr << "can not determine input language ta or xta."
-                        << std::endl;
-              throw std::exception ();
-            }
+            err ("can not determine input language ta or xta.");
 
           if (fmt == FORMAT_NONE)
             {
-              UTOT_VERBOSE (1, "enforcing plain format.\n");
+              warn ("enforcing plain format.\n");
               fmt = FORMAT_PLAIN;
             }
           std::string input = s_read_inputfile (input_filename);
 
           UTAP::TimedAutomataSystem tas;
 
-          UTOT_VERBOSE (0, "parsing %s/%s input.\n",
-                        LANG_STRINGS[lang], FORMAT_STRINGS[fmt]);
+          msg<VL_PROGRESS> ("parsing ", LANG_STRINGS[lang], "/", FORMAT_STRINGS[fmt],
+                            " input.\n");
 
           if (fmt == FORMAT_PLAIN)
-            {
-              if (!parseXTA (input.c_str (), &tas, lang == LANG_XTA))
-                {
-                  for (UTAP::error_t e : tas.getErrors ())
-                    {
-                      std::cerr << e << std::endl;
-                    }
-                  throw std::exception ();
-                }
-            }
-          else if (parseXMLBuffer (input.c_str (), &tas, lang == LANG_XTA) < 0)
-            throw std::exception ();
+            parseXTA (input.c_str (), &tas, lang == LANG_XTA);
+          else
+            parseXMLBuffer (input.c_str (), &tas, lang == LANG_XTA);
 
           if (tas.hasWarnings () && utot::verbose_level > 0)
             {
               for (UTAP::error_t e : tas.getErrors ())
-                {
-                  std::cout << e << std::endl;
-                }
+                warn (e);
             }
-          UTOT_VERBOSE (0, "translating model into tchecker file format.\n");
-          std::ofstream out;
-          s_open_output_file (output_filename, out);
+
+          if (tas.hasErrors ())
+            {
+              for (UTAP::error_t e : tas.getErrors ())
+                std::cerr << e << std::endl;
+              throw utot::exception ();
+            }
+
+          msg<VL_PROGRESS> ("translating model into tchecker file format.\n");
+
+          std::ostream out (s_open_output_file (output_filename));
+
+          tchecker::comment (out);
+          tchecker::comment (out, "This file has been generated automatically "
+                                  "with uppaal-to-tchecker");
+          tchecker::comment (out, "from file: ",
+                             ((input_filename) ? input_filename : "stdin"));
+          tchecker::comment (out);
           utot::translate_model (tas, out);
         }
     }
+  catch (const utot::exception &e)
+    {
+      if (dynamic_cast<const utot::translation_exception *>(&e) != nullptr &&
+          output_filename != nullptr)
+        unlink (output_filename);
+      result = EXIT_FAILURE;
+    }
   catch (const std::exception &e)
     {
-      if (dynamic_cast<const command_line_exception *>(&e) != nullptr)
-        s_usage (argv[0], std::cerr);
-
+      std::cerr << e.what () << std::endl;
       result = EXIT_FAILURE;
     }
 

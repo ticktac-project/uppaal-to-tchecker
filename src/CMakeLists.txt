@@ -7,7 +7,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utot-version.hh.in
                @ONLY)
 
 add_executable(utot utot.cpp utot.hh utot-translate.cc utot-translate.hh
-               utot-version.hh)
+               utot-version.hh utot-expr.cc utot-contextprefix.hh utot-decl.cc utot-tchecker.hh)
 
 target_include_directories(utot PRIVATE ${LIBUTAP_INCLUDES})
 target_include_directories(utot PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
