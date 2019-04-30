@@ -16,7 +16,6 @@
 #include "utot-translate.hh"
 #include "utot-tchecker.hh"
 #include "utot.hh"
-#include "../utap/src/utap/typechecker.h"
 
 using namespace utot;
 
@@ -110,22 +109,23 @@ s_usage (const char *cmd, std::ostream &out)
       << " \t display version number" << std::endl
 
       << "--xml"
-      << " \t enforce XML as input format" << std::endl
+      << " \t\t enforce XML as input format" << std::endl
 
       << "--txt"
-      << " \t enforce raw text as input format" << std::endl
+      << " \t\t enforce raw text as input format" << std::endl
 
       << "--xta"
-      << " \t enforce XTA as input language" << std::endl
+      << " \t\t enforce XTA as input language" << std::endl
 
       << "--ta"
-      << " \t enforce TA as input langue" << std::endl
+      << " \t\t enforce TA as input language" << std::endl
 
       << "-- \t\t specify the end of options (if necessary)" << std::endl
       << std::endl
       << "If no input file is specified, the standard input is used."
       << std::endl
-      << "If several 'xta' or 'xml' options are used the last one is used."
+      << "If several 'xta', 'xml', 'ta' or 'txt' options are used the last one "
+         "is used."
       << std::endl
       << std::endl;
 }
@@ -358,14 +358,15 @@ main (int argc, char **argv)
           msg<VL_PROGRESS> ("translating model into tchecker file format.\n");
 
           std::ostream out (s_open_output_file (output_filename));
+          tchecker::outputter tckout (out);
 
-          tchecker::comment (out);
-          tchecker::comment (out, "This file has been generated automatically "
-                                  "with uppaal-to-tchecker");
-          tchecker::comment (out, "from file: ",
+          tckout.commentln ();
+          tckout.commentln ("This file has been generated automatically with "
+                            "uppaal-to-tchecker");
+          tckout.commentln ("from file: ",
                              ((input_filename) ? input_filename : "stdin"));
-          tchecker::comment (out);
-          utot::translate_model (tas, out);
+          tckout.commentln ();
+          utot::translate_model (tas, tckout);
         }
     }
   catch (const utot::exception &e)

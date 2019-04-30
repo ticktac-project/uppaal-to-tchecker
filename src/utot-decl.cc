@@ -11,7 +11,7 @@ using namespace UTAP;
 using namespace utot;
 
 static void
-s_compute_range_bounds (type_t tsize, int &min, int &max)
+s_compute_range_bounds (UTAP::instance_t *p, type_t tsize, int &min, int &max)
 {
   while (tsize.getKind () == Constants::LABEL)
     tsize = tsize[0];
@@ -20,14 +20,15 @@ s_compute_range_bounds (type_t tsize, int &min, int &max)
           tsize[0].getKind () == Constants::SCALAR);
 
   auto t = tsize.getRange ();
-  min = eval_integer_constant (t.first);
-  max = eval_integer_constant (t.second);
+  min = eval_integer_constant (p, t.first);
+  max = eval_integer_constant (p, t.second);
   if (min > max)
     tr_err ("empty range: ", tsize);
 }
 
 static void
-s_output_integer_variable (std::ostream &out, std::string vname, type_t type,
+s_output_integer_variable (tchecker::outputter &tckout, UTAP::instance_t *p,
+                           std::string vname, type_t type,
                            expression_t init)
 {
   int min, max, initval;
@@ -47,7 +48,7 @@ s_output_integer_variable (std::ostream &out, std::string vname, type_t type,
       max = 1;
     }
   else if (kind == Constants::RANGE)
-    s_compute_range_bounds (type, min, max);
+    s_compute_range_bounds (p, type, min, max);
 
   if (init.empty ())
     {
@@ -56,17 +57,19 @@ s_output_integer_variable (std::ostream &out, std::string vname, type_t type,
             initval, ".\n");
     }
   else
-    initval = eval_integer_constant (init);
+    initval = eval_integer_constant (p, init);
 
   if (kind == Constants::CONSTANT)
     min = max = initval;
-  tchecker::intvar (out, min, max, initval, vname);
+  tckout.intvar (min, max, initval, vname);
 }
 
 static void
-s_enumerate_array_elements_decl (std::ostream &out, std::string arrayname,
+s_enumerate_array_elements_decl (tchecker::outputter &tckout,
+                                 UTAP::instance_t *p,
+                                 std::string arrayname,
                                  type_t type, expression_t init,
-                                 context_prefix_t ctx, std::deque<int> &S)
+                                 std::deque<int> &S)
 {
   Constants::kind_t kind = type.getKind ();
 
@@ -76,7 +79,7 @@ s_enumerate_array_elements_decl (std::ostream &out, std::string arrayname,
       type_t subtype = type.getSub ();
       bool noinit = init.empty ();
 
-      s_compute_range_bounds (type.getArraySize (), min, max);
+      s_compute_range_bounds (p, type.getArraySize (), min, max);
 
       if (max >= init.getSize () && !noinit)
         tr_err ("invalid initializer size for array type: ", init, ".");
@@ -84,9 +87,8 @@ s_enumerate_array_elements_decl (std::ostream &out, std::string arrayname,
       for (int i = min; i <= max; i++)
         {
           S.push_front (i);
-          s_enumerate_array_elements_decl (out, arrayname, subtype,
-                                           noinit ? init : init[i],
-                                           ctx, S);
+          s_enumerate_array_elements_decl (tckout, p, arrayname, subtype,
+                                           noinit ? init : init[i], S);
           S.pop_front ();
         }
     }
@@ -102,52 +104,68 @@ s_enumerate_array_elements_decl (std::ostream &out, std::string arrayname,
           case Constants::CHANNEL:
           case Constants::BROADCAST:
           case Constants::URGENT:
-            tchecker::event (out, oss.str ());
+            //tchecker::event (out, oss.str ());
+            tckout.commentln ("global event to synchronize: ", oss.str ());
           break;
+
+          case Constants::CLOCK:
+            tckout.clock (oss.str (), 1);
+          break;
+
           default:
-            s_output_integer_variable (out, oss.str (), type, init);
+            s_output_integer_variable (tckout, p, oss.str (), type, init);
           break;
         }
     }
 }
 
 void
-utot::translate_declarations (std::ostream &out,
-                              const UTAP::declarations_t &decl,
-                              context_prefix_t ctx)
+utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
+                              context_prefix_t ctx, UTAP::declarations_t &decl)
 {
   auto vitr = decl.variables.begin ();
-  if (ctx->isToplevel ())
+  if (p == nullptr)
     vitr++; // skip t(0) variable
   for (; vitr != decl.variables.end (); vitr++)
     {
       variable_t v = *vitr;
+
       std::string vname = v.uid.getName ();
+
       type_t type = v.uid.getType ();
       Constants::kind_t kind = type.getKind ();
 
       for (; kind == Constants::LABEL; kind = type.getKind ())
         type = type[0];
 
-      tchecker::comment (out, v.toString ());
+      tckout.commentln (vname, ":", type.toDeclarationString ());
+      vname = add_prefix (ctx, vname);
 
       switch (kind)
         {
           case Constants::CONSTANT:
           case Constants::BOOL:
           case Constants::RANGE:
-            s_output_integer_variable (out, vname, type, v.expr);
+            s_output_integer_variable (tckout, p, vname, type, v.expr);
           break;
 
           case Constants::CHANNEL:
           case Constants::BROADCAST:
-            tchecker::event (out, vname);
+          case Constants::URGENT:
+            //tchecker::event (out, vname);
+            tckout.commentln ("global event to synchronize: ", vname);
+
+          break;
+
+          case Constants::CLOCK:
+            tckout.clock (vname, 1);
           break;
 
           case Constants::ARRAY:
             {
               std::deque<int> S;
-              s_enumerate_array_elements_decl (out, vname, type, v.expr, ctx, S);
+              s_enumerate_array_elements_decl (tckout, p, vname, type,
+                                               v.expr, S);
             }
           break;
 

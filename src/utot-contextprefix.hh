@@ -8,15 +8,14 @@
 # define UPPAAL_TO_TCHEKER_UTOT_CONTEXTPREFIX_HH
 
 # include <set>
-# include <iostream>
+# include <sstream>
 # include <utap/utap.h>
 
 namespace utot
 {
-    class ContextPrefix;
+    typedef std::deque<std::string> context_prefix_t;
 
-    typedef std::shared_ptr<ContextPrefix> context_prefix_t;
-
+    /*
     class ContextPrefix {
 
      public:
@@ -84,13 +83,28 @@ namespace utot
       context_prefix_t parent_;
       context_symbols_t symbols_;
       std::string prefix_;
-    };
+    };*/
 
+  inline std::string add_prefix (utot::context_prefix_t p, std::string name);
 }
 
 inline std::ostream &operator << (std::ostream &out, utot::context_prefix_t p) {
-  p->output_prefix (out);
+  auto si = p.begin();
+  out << (*si);
+  for(si++; si != p.end(); si++)
+    out << "_" << *si;
   return out;
+}
+
+inline std::string utot::add_prefix (utot::context_prefix_t p,
+    std::string name)
+{
+  if (p.empty ())
+    return name;
+  std::ostringstream oss;
+  oss << p << "_" << name;
+
+  return oss.str ();
 }
 
 #endif /* UPPAAL_TO_TCHEKER_UTOT_CONTEXTPREFIX_HH */

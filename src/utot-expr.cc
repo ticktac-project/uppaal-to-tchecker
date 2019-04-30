@@ -9,14 +9,14 @@
 
 #define EVAL_BINARY(k_, e_, op_)            \
   case Constants::k_: \
-  return (eval_integer_constant ((e_)[0]) op_  \
-                  eval_integer_constant ((e_)[1]))
+  return (eval_integer_constant (p, (e_)[0]) op_  \
+          eval_integer_constant (p, (e_)[1]))
 
 using namespace UTAP;
 using namespace utot;
 
 int
-utot::eval_integer_constant (const UTAP::expression_t &e)
+utot::eval_integer_constant (UTAP::instance_t *p, const UTAP::expression_t &e)
 {
   assert (e.getType ().isInteger () || e.getType ().isBoolean () ||
           e.getType ().isScalar ());
@@ -44,36 +44,51 @@ utot::eval_integer_constant (const UTAP::expression_t &e)
 
       case Constants::MIN :
         {
-          int v1 = eval_integer_constant (e[0]);
-          int v2 = eval_integer_constant (e[1]);
+          int v1 = eval_integer_constant (p, e[0]);
+          int v2 = eval_integer_constant (p, e[1]);
           return v1 < v2 ? v1 : v2;
         }
 
       case Constants::MAX :
         {
-          int v1 = eval_integer_constant (e[0]);
-          int v2 = eval_integer_constant (e[1]);
+          int v1 = eval_integer_constant (p, e[0]);
+          int v2 = eval_integer_constant (p, e[1]);
           return v1 < v2 ? v2 : v1;
         }
 
       case Constants::NOT :
-        return !eval_integer_constant (e[0]);
+        return !eval_integer_constant (p, e[0]);
 
       case Constants::UNARY_MINUS :
-        return -eval_integer_constant (e[0]);
+        return -eval_integer_constant (p, e[0]);
 
       case Constants::INLINEIF :
-        if (eval_integer_constant (e[0]))
-          return eval_integer_constant (e[1]);
+        if (eval_integer_constant (p, e[0]))
+          return eval_integer_constant (p, e[1]);
         else
-          return eval_integer_constant (e[2]);
+          return eval_integer_constant (p, e[2]);
 
       case Constants::IDENTIFIER :
         {
           symbol_t s = e.getSymbol ();
+          type_t t = s.getType ();
           variable_t *v = static_cast<variable_t *> (s.getData ());
-          assert (!v->expr.empty ());
-          return eval_integer_constant (v->expr);
+
+          if (v == nullptr || v->expr.empty ())
+            {
+              if (p != nullptr && p->mapping.find (s) != p->mapping.end ())
+                {
+                  return eval_integer_constant (p, p->mapping[s]);
+                }
+              else
+                {
+                  tr_err ("unknown constant symbol '", s, "'.\n");
+                }
+            }
+          else
+            {
+              return eval_integer_constant (p, v->expr);
+            }
         }
       case Constants::CONSTANT :
         return e.getValue ();
@@ -81,15 +96,15 @@ utot::eval_integer_constant (const UTAP::expression_t &e)
       case Constants::ARRAY :
         {
           expression_t a = e[0];
-          int index = eval_integer_constant (e[1]);
-          return eval_integer_constant (a[index]);
+          int index = eval_integer_constant (p, e[1]);
+          return eval_integer_constant (p, a[index]);
         }
 
       case Constants::LIST :
         {
           expression_t a = e[0];
-          int index = eval_integer_constant (e[1]);
-          return eval_integer_constant (a[index]);
+          int index = eval_integer_constant (p, e[1]);
+          return eval_integer_constant (p, a[index]);
         }
 
       default:
@@ -100,31 +115,33 @@ utot::eval_integer_constant (const UTAP::expression_t &e)
 }
 
 static void
-s_binary_op (std::ostream &out, const UTAP::expression_t &e, const char *cppop,
+s_binary_op (std::ostream &out, UTAP::instance_t *p, UTAP::expression_t &e, const char *cppop,
              context_prefix_t ctx)
 {
   assert (e.getSize () == 2);
-  translate_expression (out, e[0], ctx);
+  translate_expression (out, p, e[0], ctx);
   out << " " << cppop << " ";
-  translate_expression (out, e[1], ctx);
+  translate_expression (out, p, e[1], ctx);
 }
 
 static void
-s_unary_op (std::ostream &out, const UTAP::expression_t &e,
-            const char *cppop, context_prefix_t ctx)
+s_unary_op (std::ostream &out, UTAP::instance_t *p, UTAP::expression_t &e,
+            const char *cppop,
+            context_prefix_t ctx)
 {
   assert (e.getSize () == 1);
-  translate_expression (out, e[0], ctx);
+  translate_expression (out, p, e[0], ctx);
   out << cppop;
 }
 
 static void
-s_unary_op (std::ostream &out, const char *cppop,
-            const UTAP::expression_t &e, context_prefix_t ctx)
+s_unary_op (std::ostream &out, UTAP::instance_t *p, const char *cppop,
+            UTAP::expression_t &e,
+            context_prefix_t ctx)
 {
   assert (e.getSize () == 1);
   out << cppop;
-  translate_expression (out, e[0], ctx);
+  translate_expression (out, p, e[0], ctx);
 }
 
 static void
@@ -134,16 +151,16 @@ s_unsupported_operator (const char *op)
 }
 
 #define BINARY_OP(kind, op) \
-  case Constants::kind: s_binary_op (out, e, op, ctx); break;
+  case Constants::kind: s_binary_op (out, p, e, op, ctx); break;
 #define UNARY_OP(kind, op) \
-  case Constants::kind: s_unary_op (out, e, op, ctx); break;
+  case Constants::kind: s_unary_op (out, p, e, op, ctx); break;
 
 #define UNSUPPORTED(kind, op) \
   case Constants::kind: s_unsupported_operator (op); break;
 
 void
-utot::translate_expression (std::ostream &out, const UTAP::expression_t &e,
-                            context_prefix_t ctx)
+utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
+                            UTAP::expression_t &e, utot::context_prefix_t ctx)
 {
   switch (e.getKind ())
     {
@@ -160,9 +177,9 @@ utot::translate_expression (std::ostream &out, const UTAP::expression_t &e,
       case Constants::OR :
         {
           out << "!(!(";
-          translate_expression (out, e[0], ctx);
+          translate_expression (out, p, e[0], ctx);
           out << ") && !(";
-          translate_expression (out, e[1], ctx);
+          translate_expression (out, p, e[1], ctx);
           out << "))";
           break;
         }
@@ -178,13 +195,13 @@ utot::translate_expression (std::ostream &out, const UTAP::expression_t &e,
         if (e.getKind () == Constants::IDENTIFIER && e.getType ().isBoolean ())
           {
             out << "((";
-            translate_expression (out, e[0], ctx);
+            translate_expression (out, p, e[0], ctx);
             out << ") * (";
-            translate_expression (out, e[1], ctx);
+            translate_expression (out, p, e[1], ctx);
             out << ") + ((1 - ";
-            translate_expression (out, e[0], ctx);
+            translate_expression (out, p, e[0], ctx);
             out << ") * (";
-            translate_expression (out, e[2], ctx);
+            translate_expression (out, p, e[2], ctx);
             out << ")))";
           }
         else
@@ -192,7 +209,15 @@ utot::translate_expression (std::ostream &out, const UTAP::expression_t &e,
       break;
 
       case Constants::IDENTIFIER :
-        out << e.getSymbol ().getName ();
+        {
+          symbol_t s = e.getSymbol ();
+          if (p && p->mapping.find(s) != p->mapping.end())
+            translate_expression (out, p, p->mapping[s], ctx);
+          else if (e.getSymbol ().getFrame ().hasParent ())
+            out << utot::add_prefix (ctx, e.getSymbol ().getName ());
+          else
+            out << e.getSymbol ().getName ();
+        }
       break;
 
       case Constants::CONSTANT :
@@ -201,9 +226,9 @@ utot::translate_expression (std::ostream &out, const UTAP::expression_t &e,
 
       case Constants::ARRAY :
         {
-          translate_expression (out, e[0], ctx);
+          translate_expression (out, p, e[0], ctx);
           out << "[";
-          translate_expression (out, e[1], ctx);
+          translate_expression (out, p, e[1], ctx);
           out << "]";
         }
       break;
@@ -245,9 +270,139 @@ utot::translate_expression (std::ostream &out, const UTAP::expression_t &e,
     }
 }
 
-extern void
-translate_assignment (std::ostream &out, const UTAP::expression_t &expr,
-                      context_prefix_t ctx)
+std::string
+utot::translate_expression (UTAP::instance_t *p, UTAP::expression_t &expr,
+                            context_prefix_t ctx)
 {
+  std::ostringstream oss;
+
+  translate_expression (oss, p, expr, ctx);
+  return oss.str ();
+}
+
+static void
+s_assign_binary_op (std::ostream &out, UTAP::instance_t *p,
+                    UTAP::expression_t &var, const char *op,
+                    UTAP::expression_t &arg, context_prefix_t ctx)
+{
+  translate_expression (out, p, var, ctx);
+  out << "=";
+  translate_expression (out, p, var, ctx);
+  out << op;
+  translate_expression (out, p, arg, ctx);
+}
+
+static void
+s_not_an_assignment (UTAP::expression_t &e)
+{
+  tr_err (":", e.getPosition ().start, ":", e.getPosition ().end,
+          " expression '", e, "' is not an assignment.");
+}
+
+#define ASSIGN_OP(kind, op) \
+  case Constants::kind: \
+  s_assign_binary_op (out, p, e[0], op, e[1],ctx); break;
+
+#define ASSIGN_INCDEC(kind, op) \
+  case Constants::kind: \
+  s_assign_binary_op (out, p, e[0], op, one, ctx); \
+  break;
+
+#define NOT_AN_ASSIGNMENT(kind, op) \
+  case Constants::kind: s_not_an_assignment (e); break;
+
+void
+utot::translate_assignment (std::ostream &out, UTAP::instance_t *p,
+                            UTAP::expression_t &e, context_prefix_t ctx)
+{
+  static UTAP::expression_t one = expression_t::createConstant (1);
+
+  assert (! e.empty ());
+
+  switch (e.getKind ())
+    {
+      case Constants::ASSIGN:
+        {
+          translate_expression (out, p, e[0], ctx);
+          out << "=";
+          translate_expression (out, p, e[1], ctx);
+        }
+      break;
+
+      ASSIGN_OP (ASSPLUS, "+");
+      ASSIGN_OP (ASSMINUS, "-");
+      ASSIGN_OP (ASSDIV, "/");
+      ASSIGN_OP (ASSMOD, "%");
+      ASSIGN_OP (ASSMULT, "*");
+
+      ASSIGN_INCDEC (POSTINCREMENT, "++");
+      ASSIGN_INCDEC (PREINCREMENT, "++");
+      ASSIGN_INCDEC(POSTDECREMENT, "--");
+      ASSIGN_INCDEC(PREDECREMENT, "--");
+
+      case Constants::COMMA:
+        {
+          translate_assignment (out, p, e[0], ctx);
+          out << ";";
+          translate_assignment (out, p, e[1], ctx);
+        }
+      break;
+
+      case Constants::CONSTANT:
+        if (!eval_integer_constant (nullptr, e))
+          s_not_an_assignment (e);
+        else
+          out << "nop";
+      break;
+
+      NOT_AN_ASSIGNMENT (NOT, "!");
+      NOT_AN_ASSIGNMENT (UNARY_MINUS, "-");
+      NOT_AN_ASSIGNMENT (PLUS, "+");
+      NOT_AN_ASSIGNMENT (MINUS, "-");
+      NOT_AN_ASSIGNMENT (MULT, "*");
+      NOT_AN_ASSIGNMENT (DIV, "/");
+      NOT_AN_ASSIGNMENT (MOD, "%");
+      NOT_AN_ASSIGNMENT (AND, "&&");
+      NOT_AN_ASSIGNMENT (OR, "||");
+      NOT_AN_ASSIGNMENT (LT, "<");
+      NOT_AN_ASSIGNMENT (LE, "<=");
+      NOT_AN_ASSIGNMENT (EQ, "==");
+      NOT_AN_ASSIGNMENT (NEQ, "!=");
+      NOT_AN_ASSIGNMENT (GE, ">=");
+      NOT_AN_ASSIGNMENT (GT, ">");
+      NOT_AN_ASSIGNMENT (INLINEIF, "if-then-else");
+      NOT_AN_ASSIGNMENT (IDENTIFIER, "ident");
+      NOT_AN_ASSIGNMENT (ARRAY, "[]");
+      NOT_AN_ASSIGNMENT (BIT_AND, "&");
+      NOT_AN_ASSIGNMENT (BIT_OR, "|");
+      NOT_AN_ASSIGNMENT (BIT_XOR, "^");
+      NOT_AN_ASSIGNMENT (BIT_LSHIFT, "<<");
+      NOT_AN_ASSIGNMENT (BIT_RSHIFT, ">>");
+      NOT_AN_ASSIGNMENT (DOT, ".");
+      NOT_AN_ASSIGNMENT (MIN, "min");
+      NOT_AN_ASSIGNMENT (MAX, "max");
+      NOT_AN_ASSIGNMENT (FUNCALL, "function call");
+      NOT_AN_ASSIGNMENT (LIST, "list");
+
+      UNSUPPORTED (ASSAND, "&");
+      UNSUPPORTED (ASSOR, "|");
+      UNSUPPORTED (ASSXOR, "^");
+      UNSUPPORTED (ASSLSHIFT, "<<");
+      UNSUPPORTED (ASSRSHIFT, ">>");
+
+      default:
+        tr_err ("don't known how to translate expression '", e, "'.");
+    }
+}
+
+std::string
+utot::translate_assignment (UTAP::instance_t *p, UTAP::expression_t &expr,
+                            context_prefix_t ctx)
+{
+  std::ostringstream oss;
+
+  translate_assignment (oss, p, expr, ctx);
+
+  return oss.str ();
 
 }
