@@ -105,7 +105,7 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
           case Constants::BROADCAST:
           case Constants::URGENT:
             //tchecker::event (out, oss.str ());
-            tckout.commentln ("global event to synchronize: ", oss.str ());
+            tckout.commentln ("event to synchronize: ", oss.str ());
           break;
 
           case Constants::CLOCK:

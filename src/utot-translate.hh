@@ -24,6 +24,10 @@ namespace utot
     translate_expression (std::ostream &out, UTAP::instance_t *p,
                           UTAP::expression_t &expr, context_prefix_t ctx);
 
+    extern void
+    translate_event_expression (std::ostream &out, UTAP::instance_t *p,
+                                UTAP::expression_t &expr, context_prefix_t ctx);
+
     extern std::string
     translate_expression (UTAP::instance_t *p, UTAP::expression_t &expr,
                           context_prefix_t ctx);

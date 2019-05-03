@@ -5,6 +5,7 @@
  */
 #include <cassert>
 #include <sstream>
+#include <functional>
 #include "utot.hh"
 #include "utot-contextprefix.hh"
 #include "utot-translate.hh"
@@ -19,10 +20,11 @@ using event_set_t = std::set<event_label_t>;
 using proc_set_t = std::set<proc_label_t>;
 
 struct global_events_t {
-    std::map<symbol_t, proc_set_t> emitters;
-    std::map<symbol_t, proc_set_t> receivers;
-    std::map<symbol_t, proc_set_t> csp;
+    std::map<event_label_t, proc_set_t> emitters;
+    std::map<event_label_t, proc_set_t> receivers;
+    std::map<event_label_t, proc_set_t> csp;
     event_set_t labels;
+    event_set_t brodcasts;
 };
 
 enum symbol_type_t {
@@ -67,6 +69,121 @@ s_translate_states (context_prefix_t ctx, instance_t p,
     }
 }
 
+static std::string
+s_emit_event (std::string uevent)
+{
+  return uevent + "_emit";
+}
+
+static std::string
+s_recv_event (std::string uevent)
+{
+  return uevent + "_recv";
+}
+
+static std::string
+s_csp_event (std::string uevent)
+{
+  return uevent;
+}
+
+static bool
+s_is_broadcast (type_t type)
+{
+  if (type.isArray ())
+    return s_is_broadcast (type[0]);
+  return type.is (Constants::BROADCAST);
+}
+
+static bool
+s_is_broadcast (expression_t event)
+{
+  return s_is_broadcast (event.getSymbol ().getType ());
+}
+
+static std::string
+s_build_edge_label (expression_t event, context_prefix_t ctx,
+                    event_set_t &local_events,
+                    global_events_t &events, instance_t p,
+                    tchecker::outputter &tckout)
+{
+  std::string ev;
+  std::ostringstream oss;
+  std::map<event_label_t, proc_set_t> *eventmap;
+  event_label_t s;
+  bool local = event.getSymbol ().getFrame ().hasParent ();
+
+  msg<VL_INFO> ("build edge label for event ", event, "\n");
+
+  if (local)
+    {
+      // If the channel has been declared in the template we prefix it with
+      // the ID of the process.
+      ev = translate_expression (&p, event, ctx);
+
+      if (local_events.find (ev) == local_events.end ())
+        {
+          tckout.event (ev);
+          local_events.insert (ev);
+        }
+      s = ev;
+    }
+  else
+    {
+      // Since the event is global we don't have to use the process prefix.
+      s = translate_expression (&p, event, context_prefix_t ());
+      ev = s;
+    }
+
+  switch (event.getSync ())
+    {
+      case Constants::synchronisation_t::SYNC_BANG:
+        {
+          ev = s_emit_event (ev);
+          eventmap = &events.emitters;
+        }
+      break;
+      case Constants::synchronisation_t::SYNC_QUE:
+        {
+          ev = s_recv_event (ev);
+          eventmap = &events.receivers;
+        }
+      break;
+      case Constants::synchronisation_t::SYNC_CSP:
+        {
+          ev = s_csp_event (ev);
+          eventmap = &events.csp;
+        }
+      break;
+    }
+
+  if (events.labels.find (ev) == events.labels.end ())
+    {
+      tckout.event (ev);
+      events.labels.insert (ev);
+
+      if (s_is_broadcast (event))
+        events.brodcasts.insert (s);
+    }
+
+  proc_label_t P = string_of (ctx);
+  proc_set_t *set;
+  auto itr = eventmap->find (s);
+
+  if (itr == eventmap->end ())
+    {
+      eventmap->emplace (s, proc_set_t ());
+      set = &eventmap->find (s)->second;
+    }
+  else
+    {
+      set = &itr->second;
+    }
+  set->insert (P);
+
+  return ev;
+}
+
 static void
 s_translate_edge (edge_t e, context_prefix_t ctx, event_set_t &local_events,
                   global_events_t &events, instance_t p,
@@ -86,76 +203,12 @@ s_translate_edge (edge_t e, context_prefix_t ctx, event_set_t &local_events,
     }
 
   std::string ev;
+  expression_t event = e.sync;
 
-  if (e.sync.empty ())
+  if (event.empty ())
     ev = tchecker::NOP_EVENT;
   else
-    {
-      std::ostringstream oss;
-      symbol_t s = e.sync.getSymbol ();
-      bool local = s.getFrame ().hasParent ();
-
-      oss << string_of (ctx) << "_" << s.getName ();
-
-      if (local)
-        {
-          ev = oss.str ();
-
-          if (local_events.find (ev) == local_events.end ())
-            {
-              tckout.event (ev);
-              local_events.insert (ev);
-            }
-        }
-      else
-        {
-          std::map<symbol_t, proc_set_t> *eventmap;
-
-          switch (e.sync.getSync ())
-            {
-              case Constants::synchronisation_t::SYNC_BANG:
-                {
-                  oss << "_emit";
-                  eventmap = &events.emitters;
-                }
-              break;
-              case Constants::synchronisation_t::SYNC_QUE:
-                {
-                  oss << "_recv";
-                  eventmap = &events.receivers;
-                }
-              break;
-              case Constants::synchronisation_t::SYNC_CSP:
-                {
-                  eventmap = &events.csp;
-                }
-              break;
-            }
-
-          ev = oss.str ();
-          if (events.labels.find (ev) == events.labels.end ())
-            {
-              proc_label_t P = string_of (ctx);
-              proc_set_t *set;
-
-              tckout.event (ev);
-              events.labels.insert (ev);
-              auto itr = eventmap->find (s);
-
-              if (itr == eventmap->end ())
-                {
-                  eventmap->emplace (s, proc_set_t ());
-                  set = &eventmap->find (s)->second;
-                }
-              else
-                {
-                  set = &itr->second;
-                }
-              assert (set->find (P) == set->end ());
-              set->insert (P);
-            }
-        }
-    }
+    ev = s_build_edge_label (event, ctx, local_events, events, p, tckout);
 
   std::string src = e.src->uid.getName ();
   std::string tgt = e.dst->uid.getName ();
@@ -298,11 +351,13 @@ s_translate_process (instance_t p, global_events_t &events,
 }
 
 static void
-s_generate_emit_recv (tchecker::outputter &tckout, symbol_t s,
+s_generate_emit_recv (tchecker::outputter &tckout, event_label_t s,
                       proc_label_t PE, proc_label_t PR)
 {
-  std::string emit = PE + "_" + s.getName () + "_emit";
-  std::string recv = PR + "_" + s.getName () + "_recv";
+  assert (PE != PR);
+
+  std::string emit = s_emit_event (s);
+  std::string recv = s_recv_event (s);
   std::map<std::string, std::pair<std::string, bool>> vect;
 
   vect.emplace (PE, std::make_pair (emit, false));
@@ -312,23 +367,28 @@ s_generate_emit_recv (tchecker::outputter &tckout, symbol_t s,
 }
 
 static void
-s_generate_emit_broadcast (tchecker::outputter &tckout, symbol_t s,
+s_generate_emit_broadcast (tchecker::outputter &tckout, event_label_t s,
                            proc_label_t PE, proc_set_t receivers)
 {
-  std::string emit = PE + "_" + s.getName () + "_emit";
+  std::string emit = s_emit_event (s);
   std::map<std::string, std::pair<std::string, bool>> vect;
 
   vect.emplace (PE, std::make_pair (emit, false));
   for (proc_label_t PR : receivers)
     {
-      std::string recv = PR + "_" + s.getName () + "_recv";
+      if (PE == PR)
+        continue;
+
+      std::string recv = s_recv_event (s);
       vect.emplace (PR, std::make_pair (recv, true));
     }
-  tckout.sync (vect);
+
+  if (vect.size () >= 2)
+    tckout.sync (vect);
 }
 
 static void
-s_generate_strong_sync (tchecker::outputter &tckout, symbol_t s,
+s_generate_strong_sync (tchecker::outputter &tckout, event_label_t s,
                         proc_set_t processes)
 {
   if (processes.size () <= 1)
@@ -338,17 +398,19 @@ s_generate_strong_sync (tchecker::outputter &tckout, symbol_t s,
 
   for (proc_label_t P : processes)
     {
-      event_label_t e = P + "_" + s.getName ();
+      event_label_t e = s_csp_event (s);
       vect.emplace (P, std::make_pair (e, false));
     }
-  tckout.sync (vect);
+  if (vect.size () >= 2)
+    tckout.sync (vect);
 }
 
 static void
-s_generate_blocked_event (tchecker::outputter &tckout, symbol_t s,
-                          proc_label_t P, std::string suffix)
+s_generate_blocked_event (tchecker::outputter &tckout, event_label_t s,
+                          proc_label_t P,
+                          std::function<std::string (event_label_t)> trevent)
 {
-  std::string ev = P + "_" + s.getName () + suffix;
+  std::string ev = trevent (s);
   std::map<std::string, std::pair<std::string, bool>> vect;
 
   vect.emplace (P, std::make_pair (ev, false));
@@ -361,47 +423,48 @@ s_generate_sync_vectors (tchecker::outputter &tckout, global_events_t &events)
 {
   for (auto kv : events.emitters)
     {
-      const symbol_t &s = kv.first;
+      const event_label_t &s = kv.first;
       proc_set_t &emitters = kv.second;
       auto ir = events.receivers.find (s);
+      bool norecv = (ir == events.receivers.end ());
 
-      if (ir == events.receivers.end ())
+      if (events.brodcasts.find (s) != events.brodcasts.end ())
+        {
+          if (norecv)
+            continue;
+          proc_set_t &receivers = ir->second;
+          for (proc_label_t PE : emitters)
+            s_generate_emit_broadcast (tckout, s, PE, receivers);
+        }
+      else if (norecv)
         {
           for (proc_label_t PE : emitters)
-            s_generate_blocked_event (tckout, s, PE, "_emit");
+            s_generate_blocked_event (tckout, s, PE, s_emit_event);
         }
       else
         {
           proc_set_t &receivers = ir->second;
 
-          if (s.getType ().getKind () == Constants::BROADCAST)
-            {
-              for (proc_label_t PE : emitters)
-                s_generate_emit_broadcast (tckout, s, PE, receivers);
-            }
-          else
-            {
-              for (proc_label_t PE : emitters)
-                for (proc_label_t PR : receivers)
-                  s_generate_emit_recv (tckout, s, PE, PR);
-            }
-          events.receivers.erase (s);
+          for (proc_label_t PE : emitters)
+            for (proc_label_t PR : receivers)
+              s_generate_emit_recv (tckout, s, PE, PR);
         }
+      events.receivers.erase (s);
     }
 
   for (auto kv : events.receivers)
     {
-      const symbol_t &s = kv.first;
+      const event_label_t &s = kv.first;
       proc_set_t &receivers = kv.second;
       for (proc_label_t PR : receivers)
-        s_generate_blocked_event (tckout, s, PR, "_recv");
+        s_generate_blocked_event (tckout, s, PR, s_recv_event);
     }
 
   for (auto kv : events.csp)
     {
-      const symbol_t &s = kv.first;
+      const event_label_t &s = kv.first;
       proc_set_t &procs = kv.second;
-
+      s_generate_strong_sync (tckout, s, procs);
     }
 }
 
@@ -414,6 +477,46 @@ s_add_stuck_process (tchecker::outputter &tckout)
   attr[tchecker::LOCATION_INITIAL] = "";
 
   tckout.location (STUCK_PROCESS, "sink", attr);
+}
+
+static void
+s_display_proc_set (event_label_t e, proc_set_t &procs, std::string action)
+{
+  msg<VL_INFO> (e, " ", action, ":");
+  if (verbose_level >= VL_INFO)
+    {
+      for (auto p : procs)
+        print (std::cout, " ", p);
+      print (std::cout, "\n");
+    }
+}
+
+static void
+s_display_table_of_events (global_events_t &events)
+{
+  msg<VL_INFO> ("Table of events:\n");
+  for (auto kv : events.emitters)
+    s_display_proc_set (kv.first, kv.second, "is emitted by");
+
+  for (auto kv : events.receivers)
+    s_display_proc_set (kv.first, kv.second, "is received by");
+
+  for (auto kv : events.csp)
+    s_display_proc_set (kv.first, kv.second, "synchronizes");
+
+  if (!events.labels.empty ())
+    {
+      msg<VL_INFO> ("global events:\n");
+      for (auto e : events.labels)
+        msg<VL_INFO> ("\t", e, "\n");
+    }
+
+  if (!events.brodcasts.empty ())
+    {
+      msg<VL_INFO> ("broadcast events:\n");
+      for (auto e : events.brodcasts)
+        msg<VL_INFO> ("\t", e, "\n");
+    }
 }
 
 bool
@@ -436,6 +539,7 @@ utot::translate_model (TimedAutomataSystem &tas, tchecker::outputter &tckout)
 
       for (instance_t p : tas.getProcesses ())
         s_translate_process (p, events, tckout);
+      s_display_table_of_events (events);
       s_generate_sync_vectors (tckout, events);
 
       result = true;

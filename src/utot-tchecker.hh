@@ -126,7 +126,7 @@ namespace utot
           inline void
           sync (std::map<std::string, std::pair<std::string, bool>> sv)
           {
-            assert (sv.begin () != sv.end ());
+            assert (sv.size() >= 2);
 
             out_ << "sync";
             for (auto ei = sv.begin (); ei != sv.end (); ei++)

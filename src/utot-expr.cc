@@ -211,7 +211,7 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
       case Constants::IDENTIFIER :
         {
           symbol_t s = e.getSymbol ();
-          if (p && p->mapping.find(s) != p->mapping.end())
+          if (p && p->mapping.find (s) != p->mapping.end ())
             translate_expression (out, p, p->mapping[s], ctx);
           else if (e.getSymbol ().getFrame ().hasParent ())
             out << utot::add_prefix (ctx, e.getSymbol ().getName ());
@@ -231,6 +231,10 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
           translate_expression (out, p, e[1], ctx);
           out << "]";
         }
+      break;
+
+      case Constants::SYNC :
+        translate_event_expression (out, p, e, ctx);
       break;
 
       UNSUPPORTED (BIT_AND, "&");
@@ -317,7 +321,7 @@ utot::translate_assignment (std::ostream &out, UTAP::instance_t *p,
 {
   static UTAP::expression_t one = expression_t::createConstant (1);
 
-  assert (! e.empty ());
+  assert (!e.empty ());
 
   switch (e.getKind ())
     {
@@ -335,10 +339,10 @@ utot::translate_assignment (std::ostream &out, UTAP::instance_t *p,
       ASSIGN_OP (ASSMOD, "%");
       ASSIGN_OP (ASSMULT, "*");
 
-      ASSIGN_INCDEC (POSTINCREMENT, "++");
-      ASSIGN_INCDEC (PREINCREMENT, "++");
-      ASSIGN_INCDEC(POSTDECREMENT, "--");
-      ASSIGN_INCDEC(PREDECREMENT, "--");
+      ASSIGN_INCDEC (POSTINCREMENT, "+");
+      ASSIGN_INCDEC (PREINCREMENT, "+");
+      ASSIGN_INCDEC (POSTDECREMENT, "-");
+      ASSIGN_INCDEC (PREDECREMENT, "-");
 
       case Constants::COMMA:
         {
@@ -405,4 +409,39 @@ utot::translate_assignment (UTAP::instance_t *p, UTAP::expression_t &expr,
 
   return oss.str ();
 
+}
+
+void
+utot::translate_event_expression (std::ostream &out, UTAP::instance_t *p,
+                                  UTAP::expression_t &e, context_prefix_t ctx)
+{
+  switch (e.getKind ())
+    {
+      case Constants::IDENTIFIER :
+        {
+          symbol_t s = e.getSymbol ();
+          if (p && p->mapping.find (s) != p->mapping.end ())
+            translate_event_expression (out, p, p->mapping[s], ctx);
+          else if (e.getSymbol ().getFrame ().hasParent ())
+            out << utot::add_prefix (ctx, e.getSymbol ().getName ());
+          else
+            out << e.getSymbol ().getName ();
+        }
+      break;
+
+      case Constants::ARRAY :
+        {
+          translate_event_expression (out, p, e[0], ctx);
+          out << "_";
+          translate_expression (out, p, e[1], ctx);
+        }
+      break;
+
+      case Constants::SYNC:
+        translate_event_expression (out, p, e[0], ctx);
+      break;
+
+      default:
+        tr_err ("don't known how to translate event expression '", e, "'.");
+    }
 }
