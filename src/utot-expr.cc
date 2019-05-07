@@ -72,6 +72,9 @@ utot::eval_integer_constant (UTAP::instance_t *p, const UTAP::expression_t &e)
         {
           symbol_t s = e.getSymbol ();
           type_t t = s.getType ();
+          if (! t.isConstant ()) {
+            tr_err ("symbol '", s.getName (), "' is not a constant.\n");
+          }
           variable_t *v = static_cast<variable_t *> (s.getData ());
 
           if (v == nullptr || v->expr.empty ())
