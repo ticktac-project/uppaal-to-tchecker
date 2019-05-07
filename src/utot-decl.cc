@@ -138,7 +138,7 @@ utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
       for (; kind == Constants::LABEL; kind = type.getKind ())
         type = type[0];
 
-      tckout.commentln (vname, ":", type.toDeclarationString ());
+      tckout.commentln (vname, ":", type.toString ());
       vname = add_prefix (ctx, vname);
 
       switch (kind)
