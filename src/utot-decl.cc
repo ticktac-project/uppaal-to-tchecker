@@ -61,6 +61,10 @@ s_output_integer_variable (tchecker::outputter &tckout, UTAP::instance_t *p,
 
   if (kind == Constants::CONSTANT)
     min = max = initval;
+
+  if (!(min <= initval && initval <= max))
+    err ("initial value ", initval, " is out of the domain of variable ",
+         vname);
   tckout.intvar (min, max, initval, vname);
 }
 
@@ -81,14 +85,15 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
 
       s_compute_range_bounds (p, type.getArraySize (), min, max);
 
-      if (max >= init.getSize () && !noinit)
+      int size = init.getSize ();
+      if ((max - min + 1) >  size && !noinit)
         tr_err ("invalid initializer size for array type: ", init, ".");
 
       for (int i = min; i <= max; i++)
         {
           S.push_front (i);
           s_enumerate_array_elements_decl (tckout, p, arrayname, subtype,
-                                           noinit ? init : init[i], S);
+                                           noinit ? init : init[i - min], S);
           S.pop_front ();
         }
     }
