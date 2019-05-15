@@ -29,7 +29,7 @@ typedef int [1,N] pid_t;
 chan go[pid_t], appr[pid_t], leave[pid_t], stop[pid_t];
 
 process Gate() {
-    int [1,N] buffer[N] = { 1$(for i in `seq 1 $N`; do echo -n ", 1"; done) };
+    int [1,N] buffer[N] = { 1$(for i in `seq 2 $N`; do echo -n ", 1"; done) };
     int [0,N-1] head = 0;
     int [0,N] length = 0;
     state Free, Occ, Transient;
