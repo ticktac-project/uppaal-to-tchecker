@@ -26,7 +26,7 @@ namespace utot
 
         using attributes_t = basic_attributes_t<std::string>;
 
-        const std::string NOP_EVENT = "nop";
+        const std::string TAU_EVENT = "tau";
         const std::string LOCATION_INITIAL = "initial";
         const std::string LOCATION_INVARIANT = "invariant";
         const std::string LOCATION_COMMITTED = "committed";

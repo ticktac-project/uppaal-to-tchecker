@@ -206,7 +206,7 @@ s_translate_edge (edge_t e, context_prefix_t ctx, event_set_t &local_events,
   expression_t event = e.sync;
 
   if (event.empty ())
-    ev = tchecker::NOP_EVENT;
+    ev = tchecker::TAU_EVENT;
   else
     ev = s_build_edge_label (event, ctx, local_events, events, p, tckout);
 
@@ -532,7 +532,7 @@ utot::translate_model (TimedAutomataSystem &tas, tchecker::outputter &tckout)
 
       tckout.system ("S");
       tckout.commentln ("global event for Uppaal unlabelled edges");
-      tckout.event ("nop");
+      tckout.event (tchecker::TAU_EVENT);
       s_add_stuck_process (tckout);
 
       utot::translate_declarations (tckout, nullptr, toplevel, tas.getGlobals ());
