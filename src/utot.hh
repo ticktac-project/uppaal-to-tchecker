@@ -65,11 +65,14 @@ namespace utot
       err_ex (exception (), std::forward<Args> (args)...);
     }
 
+    template <int level>
+    bool level_enabled() { return level < utot::verbose_level; }
+
     template<int level, typename... Args>
     void
     msg (Args... args)
     {
-      if (level >= utot::verbose_level)
+      if (! level_enabled<level>())
         return;
 
       if (level > 0)

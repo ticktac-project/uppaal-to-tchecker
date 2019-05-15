@@ -159,6 +159,9 @@ s_build_edge_label (expression_t event, context_prefix_t ctx,
 
   if (events.labels.find (ev) == events.labels.end ())
     {
+      if (event.getSymbol ().getType ().is (Constants::URGENT))
+        warn ("urgent channels are not supported: '", event, "'.\n");
+
       tckout.event (ev);
       events.labels.insert (ev);
 
@@ -494,6 +497,9 @@ s_display_proc_set (event_label_t e, proc_set_t &procs, std::string action)
 static void
 s_display_table_of_events (global_events_t &events)
 {
+  if (! level_enabled<VL_INFO>())
+    return;
+
   msg<VL_INFO> ("Table of events:\n");
   for (auto kv : events.emitters)
     s_display_proc_set (kv.first, kv.second, "is emitted by");
