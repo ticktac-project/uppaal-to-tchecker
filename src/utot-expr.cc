@@ -122,9 +122,11 @@ s_binary_op (std::ostream &out, UTAP::instance_t *p, UTAP::expression_t &e, cons
              context_prefix_t ctx)
 {
   assert (e.getSize () == 2);
+  out << "(";
   translate_expression (out, p, e[0], ctx);
   out << " " << cppop << " ";
   translate_expression (out, p, e[1], ctx);
+  out << ")";
 }
 
 static void
@@ -133,8 +135,9 @@ s_unary_op (std::ostream &out, UTAP::instance_t *p, UTAP::expression_t &e,
             context_prefix_t ctx)
 {
   assert (e.getSize () == 1);
+  out << "(";
   translate_expression (out, p, e[0], ctx);
-  out << cppop;
+  out << ")" << cppop;
 }
 
 static void
@@ -143,8 +146,9 @@ s_unary_op (std::ostream &out, UTAP::instance_t *p, const char *cppop,
             context_prefix_t ctx)
 {
   assert (e.getSize () == 1);
-  out << cppop;
+  out << cppop << "(";
   translate_expression (out, p, e[0], ctx);
+  out << ")";
 }
 
 static void
@@ -155,7 +159,11 @@ s_unsupported_operator (const char *op)
 
 #define BINARY_OP(kind, op) \
   case Constants::kind: s_binary_op (out, p, e, op, ctx); break;
-#define UNARY_OP(kind, op) \
+
+#define PRE_UNARY_OP(kind, op) \
+  case Constants::kind: s_unary_op (out, p, op, e, ctx); break;
+
+#define POST_UNARY_OP(kind, op) \
   case Constants::kind: s_unary_op (out, p, e, op, ctx); break;
 
 #define UNSUPPORTED(kind, op) \
@@ -167,8 +175,8 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
 {
   switch (e.getKind ())
     {
-      UNARY_OP (NOT, "!");
-      UNARY_OP (UNARY_MINUS, "-");
+      PRE_UNARY_OP (NOT, "!");
+      PRE_UNARY_OP (UNARY_MINUS, "-");
 
       BINARY_OP (PLUS, "+");
       BINARY_OP (MINUS, "-");
@@ -229,10 +237,24 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
 
       case Constants::ARRAY :
         {
-          translate_expression (out, p, e[0], ctx);
-          out << "[";
-          translate_expression (out, p, e[1], ctx);
-          out << "]";
+          int minsz, maxsz;
+          type_t basetype;
+
+          if (is_one_dim_int_array_variable (p, e[0].getType(), minsz, maxsz,
+              basetype))
+            {
+              translate_expression (out, p, e[0], ctx);
+              out << "[";
+              translate_expression (out, p, e[1], ctx);
+              if (minsz != 0)
+                out << "-" << minsz;
+              out << "]";
+            }
+          else
+            {
+              translate_expression (out, p, e[0], ctx);
+              out << "_" << eval_integer_constant (p, e[1]);
+            }
         }
       break;
 
@@ -435,8 +457,8 @@ utot::translate_event_expression (std::ostream &out, UTAP::instance_t *p,
       case Constants::ARRAY :
         {
           translate_event_expression (out, p, e[0], ctx);
-          out << "_";
-          translate_expression (out, p, e[1], ctx);
+          out << "_" << eval_integer_constant (p, e[1]);
+          //translate_expression (out, p, e[1], ctx);
         }
       break;
 

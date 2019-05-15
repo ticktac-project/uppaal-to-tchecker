@@ -63,8 +63,8 @@ s_output_integer_variable (tchecker::outputter &tckout, UTAP::instance_t *p,
     min = max = initval;
 
   if (!(min <= initval && initval <= max))
-    err ("initial value ", initval, " is out of the domain of variable ",
-         vname);
+    tr_err ("initial value ", initval, " is out of the domain of variable ",
+            vname);
   tckout.intvar (min, max, initval, vname);
 }
 
@@ -86,7 +86,7 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
       s_compute_range_bounds (p, type.getArraySize (), min, max);
 
       int size = init.getSize ();
-      if ((max - min + 1) >  size && !noinit)
+      if ((max - min + 1) > size && !noinit)
         tr_err ("invalid initializer size for array type: ", init, ".");
 
       for (int i = min; i <= max; i++)
@@ -122,6 +122,73 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
           break;
         }
     }
+}
+
+bool
+utot::is_one_dim_int_array_variable (UTAP::instance_t *p, UTAP::type_t t,
+                                     int &minsz, int &maxsz,
+                                     UTAP::type_t &basetype)
+{
+  assert (t.getKind () == Constants::ARRAY);
+  s_compute_range_bounds (p, t.getArraySize (), minsz, maxsz);
+  basetype = t[0];
+  while (basetype.getKind () == Constants::LABEL)
+    basetype = basetype[0];
+
+  return (basetype.getKind () == Constants::BOOL ||
+          basetype.getKind () == Constants::RANGE);
+}
+
+bool
+utot::are_all_equals_in_list (UTAP::instance_t *p, UTAP::expression_t expr,
+                              UTAP::expression_t &val)
+{
+  if (expr.empty ())
+    return true;
+
+  assert (expr.getKind () == Constants::LIST);
+
+  int minsz, maxsz;
+  s_compute_range_bounds (p, expr.getType ().getArraySize (), minsz, maxsz);
+  int sz = maxsz - minsz + 1;
+  if (expr.getSize () != sz)
+    tr_err ("expression { ", expr, " } should have ", sz, " elements.");
+
+  val = expr[0];
+  for (int i = 1; i < sz; i++)
+    {
+      if (!val.equal (expr[i]))
+        return false;
+    }
+  return true;
+}
+
+static void
+s_declare_one_dim_array (tchecker::outputter &tckout, instance_t *p,
+                         std::string vname, int size, type_t eltype,
+                         expression_t init)
+{
+  int min, max;
+
+  tckout.commentln ("one dim array.");
+  if (eltype.isBoolean ())
+    {
+      min = 0;
+      max = 1;
+    }
+  else
+    {
+      min = eval_integer_constant (p, eltype.getRange ().first);
+      max = eval_integer_constant (p, eltype.getRange ().second);
+    }
+
+  int ival = (init.empty () ? min : eval_integer_constant (p, init));
+
+  if (min <= ival && ival <= max)
+    tckout.intvar (min, max, ival, vname, size);
+  else
+    tr_err ("initial value ", ival, " is out of range [", min, ",", max,
+            "] for array '", vname, "'.");
 }
 
 void
@@ -168,15 +235,27 @@ utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
 
           case Constants::ARRAY:
             {
-              std::deque<int> S;
-              s_enumerate_array_elements_decl (tckout, p, vname, type,
-                                               v.expr, S);
+              int minsz, maxsz;
+              type_t basetype;
+              UTAP::expression_t initval;
+
+              if (is_one_dim_int_array_variable (p, type, minsz, maxsz, basetype)
+                  && are_all_equals_in_list (p, v.expr, initval))
+                {
+                  s_declare_one_dim_array (tckout, p, vname, maxsz - minsz + 1,
+                                           basetype, initval);
+                }
+              else
+                {
+                  std::deque<int> S;
+                  s_enumerate_array_elements_decl (tckout, p, vname, type,
+                                                   v.expr, S);
+                }
             }
           break;
 
           default:
             {
-              UTOT_TRACE ("%s\n", string_of (v.uid).c_str ());
               tr_err ("don't know what to do with this kind of variable: ",
                       v.uid.getName ());
             }

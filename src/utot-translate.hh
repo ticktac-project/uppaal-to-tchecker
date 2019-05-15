@@ -47,6 +47,15 @@ namespace utot
     extern bool
     translate_model (UTAP::TimedAutomataSystem &tas, tchecker::outputter &out);
 
+    extern bool
+    is_one_dim_int_array_variable (UTAP::instance_t *p, UTAP::type_t type,
+                                   int &minsz, int &maxsz,
+                                   UTAP::type_t &basetype);
+
+    extern bool
+    are_all_equals_in_list (UTAP::instance_t *p, UTAP::expression_t expr,
+                            UTAP::expression_t &val);
+
     template<typename... Args>
     void
     tr_err (Args... args)
