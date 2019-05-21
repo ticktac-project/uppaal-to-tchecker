@@ -239,9 +239,9 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
         {
           int minsz, maxsz;
           type_t basetype;
+          expression_t initval;
 
-          if (is_one_dim_int_array_variable (p, e[0].getType(), minsz, maxsz,
-              basetype))
+          if (is_one_dim_int_array_variable (p, e[0], minsz, maxsz))
             {
               translate_expression (out, p, e[0], ctx);
               out << "[";
@@ -469,4 +469,17 @@ utot::translate_event_expression (std::ostream &out, UTAP::instance_t *p,
       default:
         tr_err ("don't known how to translate event expression '", e, "'.");
     }
+}
+
+extern bool
+utot::is_one_dim_int_array_variable (UTAP::instance_t *p, UTAP::expression_t e,
+                                     int &minsz, int &maxsz)
+{
+  type_t basetype;
+  expression_t initval;
+
+  if (! is_one_dim_int_array_type (p, e.getType (), minsz, maxsz, basetype))
+    return false;
+  variable_t *v = (variable_t *) e.getSymbol ().getData ();
+  return are_all_equals_in_list (p, v->expr, initval);
 }

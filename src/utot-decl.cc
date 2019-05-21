@@ -125,9 +125,9 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
 }
 
 bool
-utot::is_one_dim_int_array_variable (UTAP::instance_t *p, UTAP::type_t t,
-                                     int &minsz, int &maxsz,
-                                     UTAP::type_t &basetype)
+utot::is_one_dim_int_array_type (UTAP::instance_t *p, UTAP::type_t t,
+                                 int &minsz, int &maxsz,
+                                 UTAP::type_t &basetype)
 {
   assert (t.getKind () == Constants::ARRAY);
   s_compute_range_bounds (p, t.getArraySize (), minsz, maxsz);
@@ -239,7 +239,7 @@ utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
               type_t basetype;
               UTAP::expression_t initval;
 
-              if (is_one_dim_int_array_variable (p, type, minsz, maxsz, basetype)
+              if (is_one_dim_int_array_type (p, type, minsz, maxsz, basetype)
                   && are_all_equals_in_list (p, v.expr, initval))
                 {
                   s_declare_one_dim_array (tckout, p, vname, maxsz - minsz + 1,
