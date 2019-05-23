@@ -203,15 +203,15 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
       BINARY_OP (GT, ">");
 
       case Constants::INLINEIF :
-        if (e.getKind () == Constants::IDENTIFIER && e.getType ().isBoolean ())
+        if (e[1].getType ().isIntegral ())
           {
-            out << "((";
+            out << "(((";
             translate_expression (out, p, e[0], ctx);
-            out << ") * (";
+            out << ") == 1) * (";
             translate_expression (out, p, e[1], ctx);
-            out << ") + ((1 - ";
+            out << ") + (((";
             translate_expression (out, p, e[0], ctx);
-            out << ") * (";
+            out << ") == 0) * (";
             translate_expression (out, p, e[2], ctx);
             out << ")))";
           }
