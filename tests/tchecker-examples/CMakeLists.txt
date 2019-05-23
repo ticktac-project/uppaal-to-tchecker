@@ -22,16 +22,6 @@ function(get_test_parameters test testname testparams prefix)
 
 endfunction()
 
-if(NOT DEFINED TCHECKER)
-    find_program(TCHECKER tchecker)
-endif(NOT DEFINED TCHECKER)
-
-if(NOT TCHECKER)
-    message(WARNING "can't find TChecker for tests.")
-    return()
-endif(NOT TCHECKER)
-
-set(UTOT "$<TARGET_FILE:utot>")
 
 set(TEST_DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/test-driver.sh)
 set(TESTS
@@ -64,10 +54,6 @@ set (TESTS_ENVVARS
      "SRCDIR=${CMAKE_CURRENT_SOURCE_DIR}"
      )
 
-add_test(NAME utot-build
-         COMMAND ${CMAKE_COMMAND} --build . --config "$<CONFIG>" --target utot
-         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-
 foreach(test ${TESTS})
     get_test_parameters(${test} testname testparams prefix)
     add_test(NAME "${test}" COMMAND ${TEST_DRIVER} ${testname} ${testparams})
@@ -89,3 +75,4 @@ set_property (DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
               ${CMAKE_CURRENT_BINARY_DIR}/Testing)
 
 add_custom_target(tchecker-examples-tests ALL)
+add_dependencies(check tchecker-examples-tests)
