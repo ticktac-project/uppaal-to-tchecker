@@ -48,6 +48,9 @@ ${APPLY_TCHECKER_SH} ${UTOT_GENERATOR_SCRIPT} ${PREFIX2} \
                      ${TESTPARAMS} \
   || exit 1
 
-cmp -s ${PREFIX1}.cards ${PREFIX2}.cards
+if ! cmp -s ${PREFIX1}.cards ${PREFIX2}.cards; then
+    echo 1>&2 "files '${PREFIX1}.cards' and '${PREFIX2}.cards' differ."
+    exit 1
+fi
 
-exit $?
+exit 0
