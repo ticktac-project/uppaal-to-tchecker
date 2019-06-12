@@ -1,0 +1,15 @@
+const int N = 2;
+typedef int[1,N] pid_t;
+
+int a[pid_t];
+
+process Processes() {
+    pid_t i;
+    state A;
+    init A;
+    trans
+        A ->A { guard a[i] > 0; assign a[i]++, i++; };
+
+}
+
+system Processes;

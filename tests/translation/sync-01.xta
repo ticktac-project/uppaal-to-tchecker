@@ -1,0 +1,18 @@
+/*
+ * A single process that emits or receives messages through channel 'a'.
+ * Since no other process exists to receive or emit on the same channel, these
+ * events should be stuck.
+ */
+
+const int N = 1;
+chan a;
+
+process Processes(int [1,N] pid) {
+    state A, B;
+    init A;
+    trans
+     A -> A { sync a!; },
+     A -> A { sync a?; };
+}
+
+system Processes;

@@ -47,6 +47,8 @@ set(TESTS
     parallel-c@10
     parallel@10
     train_gate@5
+    gps-mc@2:2:10:100
+    gps-mc@4:7:10:100
 #    corsso@3 to fixed with parenthesis
     )
 

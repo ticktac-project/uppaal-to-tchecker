@@ -1,0 +1,14 @@
+const int N = 2;
+chan a;
+
+process Processes(int [1,N] pid) {
+    state A, B;
+    init A;
+    trans
+     A -> A { sync a!; },
+     A -> A { sync a?; };
+}
+
+P(const int [1, N] pid) := Processes(pid);
+
+system P;

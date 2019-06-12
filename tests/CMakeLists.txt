@@ -14,3 +14,7 @@ else()
     add_subdirectory(tchecker-examples)
     add_subdirectory(uppaal-examples)
 endif(NOT TCHECKER)
+
+add_subdirectory(translation)
+
+

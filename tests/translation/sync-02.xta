@@ -1,0 +1,18 @@
+/*
+ * Two processes that emits or receives messages through channel 'a'.
+ * The system should have 4 states and the 8 edges should form a diamond.
+ */
+const int N = 2;
+chan a;
+
+process Processes(int [1,N] pid) {
+    state A, B;
+    init A;
+    trans
+     A -> A { sync a!; },
+     A -> B { sync a?; },
+     B -> A { sync a?; },
+     B -> B { sync a!; };
+}
+
+system Processes;

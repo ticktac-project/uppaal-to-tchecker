@@ -1,0 +1,18 @@
+/*
+ * Two processes that emit/receive on channel 'b'. Since this latter is
+ * erroneously declared in the local scope of processes, they can not
+ * be synchronized.
+ */
+const int N = 2;
+typedef const int[1,N] pid_t;
+
+process Processes(pid_t pid) {
+    chan b;
+    state A;
+    init A;
+    trans
+     A -> A { sync b!; },
+     A -> A { sync b?; };
+}
+
+system Processes;

@@ -1,0 +1,16 @@
+# 
+# This file has been generated automatically with uppaal-to-tchecker
+# 
+system: S
+# N:(const (int))
+int:1:1:1:1:N
+# a:(channel)
+# global event: a
+# compilation of process P1
+process: P1
+location:P1:A{initial:}
+location:P1:B{}
+event: a
+edge:P1:A:B:a{do:nop:provided:1}
+edge:P1:B:A:a{do:nop:provided:1}
+

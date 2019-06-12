@@ -1,0 +1,11 @@
+const int N = 2;
+typedef const int[1,N] pid_t;
+
+int a[pid_t];
+
+process Processes() {
+    state A;
+    init A;
+}
+
+system Processes;

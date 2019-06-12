@@ -1,0 +1,19 @@
+const int N = 2;
+typedef const int[1,N] pid_t;
+
+clock x;
+clock y;
+chan a;
+
+process Processes(pid_t pid, clock &a, clock &b) {
+    clock cl[2] = { a, b };
+    state A;
+    init A;
+    trans
+     A -> A { guard cl[0] < 5; sync a!;  },
+     A -> A { guard cl[1] < 5; sync a?; };
+}
+
+P(pid_t pid) := Processes(pid, x, y);
+
+system P;

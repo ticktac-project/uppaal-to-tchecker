@@ -1,0 +1,18 @@
+/*
+ * A single process that emits or receives messages through a broadcast channel
+ * 'a'. Since no other process exists to receive or emit on the same channel,
+ * 'a!' should be able while 'a?' should be blocking.
+ */
+
+const int N = 1;
+broadcast chan a;
+
+process Processes(int [1,N] pid) {
+    state E, R;
+    init E;
+    trans
+     E -> R { sync a!; },
+     R -> E { sync a?; };
+}
+
+system Processes;

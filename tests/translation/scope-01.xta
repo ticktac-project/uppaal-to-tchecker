@@ -1,0 +1,13 @@
+const int N = 1;
+
+chan comm[N];
+
+process Processes(int [1,N] pid) {
+    clock comm[N];
+    state A;
+    init A;
+    trans
+     A -> A{};
+}
+
+system Processes;

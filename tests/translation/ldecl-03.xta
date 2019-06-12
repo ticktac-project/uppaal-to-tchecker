@@ -1,0 +1,19 @@
+/*
+ * Two processes that emit/receive on a broadcast channel 'b'. Since this latter
+ * is erroneously declared in the local scope of processes, they can not be
+ * synchronized and thus only b! can occur.
+ */
+const int N = 2;
+typedef const int[1,N] pid_t;
+typedef broadcast chan bchan;
+
+process Processes(pid_t pid) {
+    bchan b;
+    state A;
+    init A;
+    trans
+     A -> A { sync b!; },
+     A -> A { sync b?; };
+}
+
+system Processes;

@@ -1,0 +1,16 @@
+const int N = 2;
+typedef const int[1,N] pid_t;
+
+chan a[pid_t];
+
+process Processes(pid_t pid, broadcast chan b) {
+    state A, B;
+    init A;
+    trans
+     A -> A { sync b!; },
+     A -> A { sync b?; };
+}
+
+P(pid_t pid) := Processes(pid, a[pid]);
+
+system P;
