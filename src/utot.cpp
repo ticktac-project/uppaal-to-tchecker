@@ -9,9 +9,9 @@
 #include <sstream>
 #include <cassert>
 #include <cstring>
+#include <unistd.h>
 #include <getopt.h>
 #include <sys/errno.h>
-#include <filesystem>
 #include "utot-version.hh"
 #include "utot-translate.hh"
 #include "utot-tchecker.hh"
@@ -52,7 +52,8 @@ enum ShortOption {
     SO_PLAIN = 0x100,
     SO_XML = 0x101,
     SO_TA = 0x102,
-    SO_XTA = 0x103
+    SO_XTA = 0x103,
+    SO_SYSNAME = 0x104
 };
 
 int utot::verbose_level = 0;
@@ -65,6 +66,7 @@ static input_language_t enforced_language = LANG_NONE;
 static bool erase_output = false;
 static const char *input_filename = nullptr;
 static const char *output_filename = nullptr;
+static const char *sysname = nullptr;
 
 static const char OPTION_STRING[] = {
     SO_DEBUG,
@@ -80,6 +82,7 @@ static const struct option OPTIONS[] = {
     {"xta",     no_argument, nullptr, SO_XTA},
     {"xml",     no_argument, nullptr, SO_XML},
     {"plain",   no_argument, nullptr, SO_PLAIN},
+    {"sysname", required_argument, nullptr, SO_SYSNAME},
     {"ta",      no_argument, nullptr, SO_TA},
     {"version", no_argument, nullptr, SO_VERSION},
     {"verbose", no_argument, nullptr, SO_VERBOSE},
@@ -119,6 +122,9 @@ s_usage (const char *cmd, std::ostream &out)
 
       << "--ta"
       << " \t\t enforce TA as input language" << std::endl
+
+      << "--sysname id"
+        << " \t\t specify the label of teh system" << std::endl
 
       << "-- \t\t specify the end of options (if necessary)" << std::endl
       << std::endl
@@ -180,6 +186,10 @@ s_parse_options (int argc, char **argv)
           case SO_VERSION:
             show_version = true;
           break;
+
+          case SO_SYSNAME:
+            sysname = optarg;
+            break;
 
           case ':':
             err ("missing argument to option '", optopt, "'.\n");
@@ -303,6 +313,25 @@ s_read_inputfile (const char *filename)
   return oss.str ();
 }
 
+static std::string
+s_get_system_id (void)
+{
+  const char *c = (sysname == nullptr) ? input_filename : sysname;
+  if (c == nullptr || *c == '\0')
+    return "System";
+
+  std::ostringstream oss;
+  while (*c)
+    {
+      if (isalnum (*c) || *c == '_' || *c == '.')
+        oss << *c;
+      else
+        oss << '_';
+      c++;
+    }
+  return oss.str ();
+}
+
 int
 main (int argc, char **argv)
 {
@@ -363,10 +392,13 @@ main (int argc, char **argv)
           tckout.commentln ();
           tckout.commentln ("This file has been generated automatically with "
                             "uppaal-to-tchecker");
-          tckout.commentln ("from file: ",
-                             ((input_filename) ? input_filename : "stdin"));
+          if (verbose_level > 0)
+            tckout.commentln ("from file: ",
+                               ((input_filename) ? input_filename : "stdin"));
           tckout.commentln ();
-          utot::translate_model (tas, tckout);
+
+          std::string systemid = s_get_system_id ();
+          utot::translate_model (systemid, tas, tckout);
         }
     }
   catch (const utot::exception &e)
