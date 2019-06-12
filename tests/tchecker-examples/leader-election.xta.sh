@@ -75,5 +75,26 @@ process Stopwatch () {
         finished[p]; };
 }
 
-system Candidates, Stopwatch;
 EOF
+
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo "C${i} := Candidates($i);"
+done
+
+echo -n "system Stopwatch"
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo -n ",C${i}"
+done
+echo ";"
+
+echo -n "IO Stopwatch { finished[1]"
+for i in $(eval echo "{2..$NPROCS}"); do
+    echo -n ", finished[$i]"
+done
+echo "}"
+
+echo "IO C1 { finished[1], lock[1], lock[$NPROCS], unlock[1], unlock[$NPROCS] }"
+for i in $(eval echo "{2..$NPROCS}"); do
+    pred=$(($i-1))
+    echo "IO C$i { finished[$i], lock[$i], lock[$pred], unlock[$i], unlock[$pred] }"
+done

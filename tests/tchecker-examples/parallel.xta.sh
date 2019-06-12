@@ -37,5 +37,20 @@ process Processes(int [1,N] pid) {
         B -> C { guard x <= 1; sync s; };
 }
 
-system Processes;
 EOF
+
+for i in $(eval echo "{1..$N}"); do
+    echo "P${i} := Processes($i);"
+done
+
+echo -n "system P1"
+if test $N -gt 1; then
+    for i in $(eval echo "{2..$N}"); do
+	echo -n ",P${i}"
+    done
+fi
+echo ";"
+
+for i in $(eval echo "{1..$N}"); do
+    echo "IO P${i} {s}"
+done

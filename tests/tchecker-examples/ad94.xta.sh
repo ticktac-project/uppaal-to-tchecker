@@ -23,5 +23,8 @@ process P() {
 }
 
 system P;
+
+IO P {a,b,c,d}
 EOF
+
 

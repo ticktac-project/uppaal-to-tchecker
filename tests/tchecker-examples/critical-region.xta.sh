@@ -88,6 +88,20 @@ process ProdCell(const pid_t pid) {
     testing2->safe { guard x <= T-1; };
 }
 
-system Counter, Arbiter, ProdCell;
 EOF
 
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo "P${i} := ProdCell($i);"
+    echo "A${i} := Arbiter($i);"
+done
+
+echo -n "system Counter"
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo -n ",A${i},P${i}"
+done
+echo ";"
+
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo "IO A${i} { ch_enter[$i], ch_exit[$i] }"
+    echo "IO P${i} { ch_enter[$i], ch_exit[$i] }"
+done

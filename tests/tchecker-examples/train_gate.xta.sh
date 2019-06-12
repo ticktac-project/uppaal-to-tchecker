@@ -83,52 +83,25 @@ process Trains(const pid_t pid) {
         Cross -> Safe { guard x >= 3; sync leave[pid]; };
 }
 
-system Gate, Trains;
+EOF
 
-/*
-# Gate process
-echo "# Gate
-process:Gate
-int:$N:1:$N:1:buffer
-int:1:0:$((N-1)):0:head
-int:1:0:$N:0:length
-location:Gate:Free{initial:}
-location:Gate:Occ{}
-location:Gate:Transient:{committed:}"
 
-for pid in `seq 1 $N`; do
-    echo "edge:Gate:Free:Occ:go$pid{provided:length>0&&buffer[head]==$pid}
-edge:Gate:Free:Occ:appr$pid{provided:length==0 : do:buffer[(head+length)%$N]=$pid;length=length+1}
-edge:Gate:Occ:Transient:appr$pid{do:buffer[(head+length)%$N]=$pid;length=length+1}
-edge:Gate:Occ:Free:leave$pid{provided:length>0&&buffer[head]==$pid : do:head=(head+1)%$N;length=length-1}
-edge:Gate:Transient:Occ:stop$pid{provided:length>0&&buffer[(head+length-1)%$N]==$pid}"
+for i in $(eval echo "{1..${N}}"); do
+    echo "T${i} := Trains($i);"
 done
 
-echo ""
+echo -n "system Gate"
+for i in $(eval echo "{1..${N}}"); do
+    echo -n ",T${i}"
+done
+echo ";"
 
-# Train processes
+echo -n "IO Gate { go[1], appr[1], leave[1], stop[1]"
+for i in $(eval echo "{1..${N}}"); do
+    echo -n ", go[$i], appr[$i], leave[$i], stop[$i]"
+done
+echo "}"
 
-for pid in `seq 1 $N`; do
-    echo "# Train $pid
-process:Train$pid
-clock:1:x$pid
-location:Train$pid:Safe{initial:}
-location:Train$pid:Appr{invariant:x$pid<=20}
-location:Train$pid:Stop{}
-location:Train$pid:Start{invariant:x$pid<=15}
-location:Train$pid:Cross{invariant:x$pid<=5 : labels:cross$pid}
-edge:Train$pid:Safe:Appr:appr{do:x$pid=0}
-edge:Train$pid:Appr:Cross:tau{provided:x$pid>=10 : do:x$pid=0}
-edge:Train$pid:Appr:Stop:stop{provided:x$pid<=10}
-edge:Train$pid:Stop:Start:go{do:x$pid=0}
-edge:Train$pid:Start:Cross:tau{provided:x$pid>=7 : do:x$pid=0}
-edge:Train$pid:Cross:Safe:leave{provided:x$pid>=3}
-
-sync:Train$pid@appr:Gate@appr$pid
-sync:Train$pid@stop:Gate@stop$pid
-sync:Train$pid@go:Gate@go$pid
-sync:Train$pid@leave:Gate@leave$pid
-"
-done*/
-
-EOF
+for i in $(eval echo "{1..${N}}"); do
+    echo -n "IO T${i} { go[$i], appr[$i], leave[$i], stop[$i] }"
+done

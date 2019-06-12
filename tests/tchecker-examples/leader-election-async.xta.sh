@@ -86,6 +86,26 @@ process Stopwatch() {
         initial -> error { guard z > TIMEOUT; },
         initial -> safe { select p : pid_t; guard z <= TIMEOUT; sync finished[p]; };
 }
-
-system Candidates, Stopwatch;
 EOF
+
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo "C${i} := Candidates($i);"
+done
+
+echo -n "system Stopwatch"
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo -n ",C${i}"
+done
+echo ";"
+
+echo -n "IO Stopwatch { finished[1]"
+for i in $(eval echo "{2..$NPROCS}"); do
+    echo -n ", finished[$i]"
+done
+echo "}"
+
+echo "IO C1 { read_out[1], read_out[$NPROCS], finished[1], lock[1], lock[$NPROCS], unlock[1], unlock[$NPROCS] }"
+for i in $(eval echo "{2..$NPROCS}"); do
+    pred=$(($i-1))
+    echo "IO C$i { read_out[$i], read_out[$pred], finished[$i], lock[$i], lock[$pred], unlock[$i], unlock[$pred] }"
+done

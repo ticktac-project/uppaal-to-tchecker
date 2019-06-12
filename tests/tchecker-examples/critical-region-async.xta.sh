@@ -104,6 +104,28 @@ process ProdCell(const pid_t pid) {
     testing2->error { guard x >= T; },
     testing2->safe { guard x <= T-1; };
 }
-system ID, Counter, Arbiter, ProdCell;
+
 EOF
 
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo "P${i} := ProdCell($i);"
+    echo "A${i} := Arbiter($i);"
+done
+
+echo -n "system ID, Counter"
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo -n ",A${i},P${i}"
+done
+echo ";"
+
+echo -n "IO ID { id_eq_0, id_lt_NPROCS, id_eq_NPROCS"
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo -n ",ch_enter[$i],ch_exit[$i]"
+done
+echo "}"
+
+echo "IO Counter { id_eq_0, id_lt_NPROCS, id_eq_NPROCS }"
+for i in $(eval echo "{1..$NPROCS}"); do
+    echo "IO A${i} { ch_enter[$i], ch_exit[$i] }"
+    echo "IO P${i} { ch_enter[$i], ch_exit[$i] }"
+done

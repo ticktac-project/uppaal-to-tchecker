@@ -95,5 +95,24 @@ process Ring() {
         $(echo "r${N} -> q1 { sync RT[N]; assign t = 0; };")
 }
 
-system Process, Ring;
 EOF
+
+for i in $(eval echo "{1..$N}"); do
+    echo "P${i} := Process($i);"
+done
+
+echo -n "system Ring "
+for i in $(eval echo "{1..$N}"); do
+    echo -n ",P${i}"
+done
+echo ";"
+
+for i in $(eval echo "{1..$N}"); do
+    echo "IO P${i} { RT[$i], TT[$i] }"
+done
+
+echo -n "IO Ring { RT[1], TT[1]"
+for i in $(eval echo "{2..$N}"); do
+    echo -n ", RT[$i], TT[$i]"
+done
+echo " }"
