@@ -1,6 +1,6 @@
 /*
  * This file is part of the TChecker Project.
- * 
+ *
  * See files AUTHORS and LICENSE for copyright details.
  */
 #include <cassert>
@@ -23,6 +23,7 @@ struct global_events_t {
     std::map<event_label_t, proc_set_t> emitters;
     std::map<event_label_t, proc_set_t> receivers;
     std::map<event_label_t, proc_set_t> csp;
+    std::map<proc_label_t, event_set_t> allowed_csp;
     event_set_t labels;
     event_set_t brodcasts;
 };
@@ -46,15 +47,11 @@ s_translate_states (context_prefix_t ctx, instance_t p,
 
   for (state_t s : p.templ->states)
     {
-      std::ostringstream oss;
       tchecker::attributes_t attr;
 
-      if (s.invariant.empty ())
-        oss << "1";
-      else
-        translate_expression (oss, &p, s.invariant, ctx);
-
-      attr[tchecker::LOCATION_INVARIANT] = oss.str ();
+      if (!s.invariant.empty ())
+        attr[tchecker::LOCATION_INVARIANT] =
+            translate_expression (&p, s.invariant, ctx);
 
       if (s.uid.getType ().is (Constants::COMMITTED))
         attr[tchecker::LOCATION_COMMITTED] = "";
@@ -353,11 +350,12 @@ s_translate_process (instance_t p, global_events_t &events,
   else s_translate_process (ctx, p, p.mapping, events, tckout);
 }
 
-static void
+static bool
 s_generate_emit_recv (tchecker::outputter &tckout, event_label_t s,
                       proc_label_t PE, proc_label_t PR)
 {
-  assert (PE != PR);
+  if (PE == PR)
+    return false;
 
   std::string emit = s_emit_event (s);
   std::string recv = s_recv_event (s);
@@ -367,9 +365,11 @@ s_generate_emit_recv (tchecker::outputter &tckout, event_label_t s,
   vect.emplace (PR, std::make_pair (recv, false));
 
   tckout.sync (vect);
+
+  return true;
 }
 
-static void
+static bool
 s_generate_emit_broadcast (tchecker::outputter &tckout, event_label_t s,
                            proc_label_t PE, proc_set_t receivers)
 {
@@ -388,42 +388,87 @@ s_generate_emit_broadcast (tchecker::outputter &tckout, event_label_t s,
 
   if (vect.size () >= 2)
     tckout.sync (vect);
+
+  return vect.size () >= 2;
 }
 
 static void
-s_generate_strong_sync (tchecker::outputter &tckout, event_label_t s,
-                        proc_set_t processes)
+s_add_stuck_process (tchecker::outputter &tckout)
 {
-  if (processes.size () <= 1)
-    return;
+  tckout.commentln ("dummy process used to block emitted/received "
+                    "events that aren't synchronized.");
+  tckout.process (STUCK_PROCESS);
+  tckout.event (NO_SYNC_EVENT);
+  tchecker::attributes_t attr;
+  attr[tchecker::LOCATION_INITIAL] = "";
 
+  tckout.location (STUCK_PROCESS, "sink", attr);
+}
+
+static void
+s_generate_blocked_event (tchecker::outputter &tckout, event_label_t s,
+                          proc_label_t P,
+                          std::function<std::string (event_label_t)> trevent,
+                          bool &add_stuck_process)
+{
+  std::string ev = trevent (s);
+  std::map<std::string, std::pair<std::string, bool>> vect;
+
+  if (add_stuck_process)
+    {
+      s_add_stuck_process (tckout);
+      add_stuck_process = false;
+    }
+  vect.emplace (P, std::make_pair (ev, false));
+  vect.emplace (STUCK_PROCESS, std::make_pair (NO_SYNC_EVENT, false));
+  tckout.sync (vect);
+}
+
+/**
+ * @brief Output a CSP-like synchronization vector for a given event @var{s}.
+ *
+ * This function generates a strong synchronization for processes that possess
+ * at least one transition labeled with @var{s}. Uppaal requires that these
+ * events are also declared in an "IO" declaration section:
+ * - if an event appears in the IO section it is synchronized with other
+ * processes with the same label;
+ * - if the event does not appear in the IO section it is asynchronous if the
+ * process has at least an one event in the IO section
+ * - else the event is disabled.
+ *
+ * @param tckout the tchecker formatted
+ * @param s the label of the event that synchronizes processes
+ * @param processes the set of processes that have at least one transitions
+ *                  labeled with s
+ */
+static void
+s_generate_strong_sync (tchecker::outputter &tckout, event_label_t s,
+                        proc_set_t &processes,
+                        std::map<proc_label_t, event_set_t> &allowed_csp,
+                        bool &add_stuck_process)
+{
   std::map<std::string, std::pair<std::string, bool>> vect;
 
   for (proc_label_t P : processes)
     {
-      event_label_t e = s_csp_event (s);
-      vect.emplace (P, std::make_pair (e, false));
+      event_label_t e = s;
+      auto it = allowed_csp.find (P);
+      event_set_t *set = ((it == allowed_csp.end()) ? nullptr : &it->second);
+
+      if (set == nullptr)
+        s_generate_blocked_event (tckout, s, P, s_csp_event, add_stuck_process);
+      else if (set->find (e) != set->end())
+        vect.emplace (P, std::make_pair (e, false));
     }
   if (vect.size () >= 2)
     tckout.sync (vect);
 }
 
 static void
-s_generate_blocked_event (tchecker::outputter &tckout, event_label_t s,
-                          proc_label_t P,
-                          std::function<std::string (event_label_t)> trevent)
-{
-  std::string ev = trevent (s);
-  std::map<std::string, std::pair<std::string, bool>> vect;
-
-  vect.emplace (P, std::make_pair (ev, false));
-  vect.emplace (STUCK_PROCESS, std::make_pair (NO_SYNC_EVENT, false));
-  tckout.sync (vect);
-}
-
-static void
 s_generate_sync_vectors (tchecker::outputter &tckout, global_events_t &events)
 {
+  bool add_stuck_process = true;
+
   for (auto kv : events.emitters)
     {
       const event_label_t &s = kv.first;
@@ -431,55 +476,70 @@ s_generate_sync_vectors (tchecker::outputter &tckout, global_events_t &events)
       auto ir = events.receivers.find (s);
       bool norecv = (ir == events.receivers.end ());
 
-      if (events.brodcasts.find (s) != events.brodcasts.end ())
+      if (ir == events.receivers.end ())
         {
-          if (norecv)
-            continue;
-          proc_set_t &receivers = ir->second;
-          for (proc_label_t PE : emitters)
-            s_generate_emit_broadcast (tckout, s, PE, receivers);
+          if (events.brodcasts.find (s) == events.brodcasts.end ())
+            {
+              // There is no receivers and channel 's' is not a broadcast thus
+              // emitters must be blocked.
+              for (proc_label_t PE : emitters)
+                s_generate_blocked_event (tckout, s, PE, s_emit_event,
+                                          add_stuck_process);
+            }
+          continue;
         }
-      else if (norecv)
+
+      // clear_receivers becomes true only if there exist different processes
+      // that are synchronized on channel 's'.
+      bool clear_receivers = false;
+      proc_set_t &receivers = ir->second;
+      assert(!receivers.empty ());
+
+      if (events.brodcasts.find (s) == events.brodcasts.end ())
         {
           for (proc_label_t PE : emitters)
-            s_generate_blocked_event (tckout, s, PE, s_emit_event);
+            {
+              bool norecv = true;
+              for (proc_label_t PR : receivers)
+                {
+                  if (s_generate_emit_recv (tckout, s, PE, PR))
+                    norecv = false;
+                }
+              if (norecv)
+                s_generate_blocked_event (tckout, s, PE, s_emit_event,
+                                          add_stuck_process);
+              else
+                clear_receivers = true;
+            }
         }
       else
         {
-          proc_set_t &receivers = ir->second;
-
           for (proc_label_t PE : emitters)
-            for (proc_label_t PR : receivers)
-              s_generate_emit_recv (tckout, s, PE, PR);
+            if (s_generate_emit_broadcast (tckout, s, PE, receivers))
+              clear_receivers = true;
         }
-      events.receivers.erase (s);
+      if (clear_receivers)
+        events.receivers.erase (s);
     }
 
+  // The remaining receivers had not been synchronized with an emitter.
+  // We synchronize them with the Stuck process.
   for (auto kv : events.receivers)
     {
       const event_label_t &s = kv.first;
       proc_set_t &receivers = kv.second;
       for (proc_label_t PR : receivers)
-        s_generate_blocked_event (tckout, s, PR, s_recv_event);
+        s_generate_blocked_event (tckout, s, PR, s_recv_event,
+                                  add_stuck_process);
     }
 
   for (auto kv : events.csp)
     {
       const event_label_t &s = kv.first;
       proc_set_t &procs = kv.second;
-      s_generate_strong_sync (tckout, s, procs);
+      s_generate_strong_sync (tckout, s, procs, events.allowed_csp,
+                              add_stuck_process);
     }
-}
-
-static void
-s_add_stuck_process (tchecker::outputter &tckout)
-{
-  tckout.process (STUCK_PROCESS);
-  tckout.event (NO_SYNC_EVENT);
-  tchecker::attributes_t attr;
-  attr[tchecker::LOCATION_INITIAL] = "";
-
-  tckout.location (STUCK_PROCESS, "sink", attr);
 }
 
 static void
@@ -497,7 +557,7 @@ s_display_proc_set (event_label_t e, proc_set_t &procs, std::string action)
 static void
 s_display_table_of_events (global_events_t &events)
 {
-  if (! level_enabled<VL_INFO>())
+  if (!level_enabled<VL_INFO> ())
     return;
 
   msg<VL_INFO> ("Table of events:\n");
@@ -525,8 +585,28 @@ s_display_table_of_events (global_events_t &events)
     }
 }
 
+static void
+s_register_iodecl (declarations_t decls, global_events_t &events)
+{
+  for (auto d : decls.iodecl)
+    {
+      if (d.csp.empty ())
+        continue;
+
+      events.allowed_csp.emplace (d.instanceName, event_set_t ());
+      event_set_t *eset = &events.allowed_csp.find (d.instanceName)->second;
+
+      for (auto e : d.csp)
+        {
+          std::string ev = translate_expression (nullptr, e, context_prefix_t ());
+          eset->insert (ev);
+        }
+    }
+}
+
 bool
-utot::translate_model (TimedAutomataSystem &tas, tchecker::outputter &tckout)
+utot::translate_model (std::string sysname, TimedAutomataSystem &tas,
+                       tchecker::outputter &tckout)
 {
   bool result;
 
@@ -536,12 +616,14 @@ utot::translate_model (TimedAutomataSystem &tas, tchecker::outputter &tckout)
       context_prefix_t toplevel;
       global_events_t events;
 
-      tckout.system ("S");
-      tckout.commentln ("global event for Uppaal unlabelled edges");
-      tckout.event (tchecker::TAU_EVENT);
-      s_add_stuck_process (tckout);
+      tckout.system (sysname);
+      declarations_t globals = tas.getGlobals ();
+      utot::translate_declarations (tckout, nullptr, toplevel, globals);
 
-      utot::translate_declarations (tckout, nullptr, toplevel, tas.getGlobals ());
+      if (globals.iodecl.empty ())
+        tckout.commentln ("no iodecl");
+      else
+        s_register_iodecl (globals, events);
 
       for (instance_t p : tas.getProcesses ())
         s_translate_process (p, events, tckout);

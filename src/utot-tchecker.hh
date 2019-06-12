@@ -37,6 +37,8 @@ namespace utot
         class outputter {
          private:
           std::ostream &out_;
+          bool tau_generated = false;
+
          public:
           outputter () : out_ (std::cout)
           {}
@@ -108,6 +110,12 @@ namespace utot
           edge (std::string process, std::string src, std::string tgt,
                 std::string e, attributes_t attr)
           {
+            if (e == TAU_EVENT && ! tau_generated)
+              {
+                commentln ("global event for Uppaal unlabelled edges");
+                event (TAU_EVENT);
+                tau_generated = true;
+              }
             out_ << "edge:" << process << ":" << src << ":" << tgt << ":" << e;
             attributes (attr);
             out_ << std::endl;
