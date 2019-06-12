@@ -54,19 +54,20 @@ TCHECKER_OUTFILE="${TESTNAME}.out"
 TCHECKER_ERRFILE="${TESTNAME}.err"
 TCHECKER_CARDSFILE="${TESTNAME}.cards"
 
-if ${UTOT} ${SRCDIR}/${TESTNAME} > ${UTOT_OUTFILE} 2> ${UTOT_ERRFILE} && \
+if ${UTOT} --sysname S ${SRCDIR}/${TESTNAME} > ${UTOT_OUTFILE} \
+    2> ${UTOT_ERRFILE} && \
    test ! -s ${UTOT_ERRFILE} && \
    ${TCHECKER} explore -m ta -s bfs ${UTOT_OUTFILE} > ${TCHECKER_OUTFILE} \
     2> ${TCHECKER_ERRFILE} && \
     test ! -s ${TCHECKER_ERRFILE};
 then
     cat > ${TCHECKER_CARDSFILE} << EOF
-NBSTATE=$(grep -e '^[0-9]*:' ${TCHECKER_OUTFILE} | wc -l)
-NBTRANS=$(grep -e '^[0-9]* -> [0-9]* ' ${TCHECKER_OUTFILE} | wc -l)
+NBSTATE=$(grep -e '^[0-9]*:' ${TCHECKER_OUTFILE} | wc -l | tr -d " \t")
+NBTRANS=$(grep -e '^[0-9]* -> [0-9]* ' ${TCHECKER_OUTFILE} | wc -l | tr -d " \t")
 EOF
 fi
 
-for f in ${UTOT_OUTFILE} ${UTOT_ERRFILE} ${TCHECKER_CARDSFILE}; do
+for f in ${UTOT_OUTFILE} ${TCHECKER_OUTFILE} ${TCHECKER_CARDSFILE}; do
     check_expected_file $f no
 done
 

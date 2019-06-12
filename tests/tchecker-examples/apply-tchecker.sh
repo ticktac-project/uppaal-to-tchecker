@@ -27,7 +27,7 @@ ${SCRIPT} $* > ${GENERATED_FILE} || exit 1
 
 if test ${XTAMODE} = "yes";
 then
-    ${UTOT} -e --xta ${GENERATED_FILE} ${TCHECKER_INPUT} || exit 1
+    ${UTOT} --sysname S -e --xta ${GENERATED_FILE} ${TCHECKER_INPUT} || exit 1
 else
     cp ${GENERATED_FILE} ${TCHECKER_INPUT} || exit 1
 fi
@@ -36,8 +36,8 @@ ${TCHECKER} explore -m ta -s bfs ${TCHECKER_INPUT} > ${TCHECKER_RESULT} \
     || exit 1
 
 cat > ${TCHECKER_CARDS} << EOF
-NBSTATE=$(grep -e '^[0-9]*:' ${TCHECKER_RESULT} | wc -l)
-NBTRANS=$(grep -e '^[0-9]* -> [0-9]* ' ${TCHECKER_RESULT} | wc -l)
+NBSTATE=$(grep -e '^[0-9]*:' ${TCHECKER_RESULT} | wc -l | tr -d " \t")
+NBTRANS=$(grep -e '^[0-9]* -> [0-9]* ' ${TCHECKER_RESULT} | wc -l | tr -d " \t")
 EOF
 
 

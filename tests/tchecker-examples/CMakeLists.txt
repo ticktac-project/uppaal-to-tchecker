@@ -1,3 +1,5 @@
+add_test_suite(check-tchecker-examples "TChecker Examples")
+
 #
 # Parse the "test" string to get the corresponding testname and its parameters
 # that should be passed to script generators. The string follows the syntax:
@@ -71,8 +73,4 @@ foreach(test ${TESTS})
     unset(testparams)
     unset(prefix)
 endforeach(test)
-set_property (DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-              ${CMAKE_CURRENT_BINARY_DIR}/Testing)
 
-add_custom_target(tchecker-examples-tests ALL)
-add_dependencies(check tchecker-examples-tests)

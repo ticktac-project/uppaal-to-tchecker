@@ -1,3 +1,5 @@
+add_test_suite(check-uppaal-examples "Uppaal Examples")
+
 set(TEST_DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/test-driver.sh)
 set(TESTS
     2doors.xml
@@ -23,21 +25,13 @@ set (TESTS_ENVVARS
      )
 
 foreach(test ${TESTS})
-    get_filename_component(testname ${test} NAME_WE)
-    add_test(NAME "${testname}" COMMAND ${TEST_DRIVER} ${test})
+    add_test(NAME "${test}" COMMAND ${TEST_DRIVER} ${test})
     foreach(var ${TESTS_ENVVARS})
-        set_property (TEST "${testname}" APPEND PROPERTY ENVIRONMENT ${var})
+        set_property (TEST "${test}" APPEND PROPERTY ENVIRONMENT ${var})
     endforeach(var ${TESTS_ENVVARS})
-    set_property(TEST "${testname}" APPEND PROPERTY DEPENDS utot-build)
+    set_property(TEST "${test}" APPEND PROPERTY DEPENDS utot-build)
     foreach(ext out err cards tck.out tck.err)
         set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
                      "${CMAKE_CURRENT_BINARY_DIR}/${test}.${ext}")
     endforeach()
-    unset(testname)
 endforeach(test)
-
-set_property (DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-              ${CMAKE_CURRENT_BINARY_DIR}/Testing)
-
-add_custom_target(uppaal-examples-tests)
-add_dependencies(check uppaal-examples-tests)
