@@ -18,8 +18,9 @@ using namespace utot;
 int
 utot::eval_integer_constant (UTAP::instance_t *p, const UTAP::expression_t &e)
 {
-  assert (e.getType ().isInteger () || e.getType ().isBoolean () ||
-          e.getType ().isScalar ());
+  if (! (e.getType ().isInteger () || e.getType ().isBoolean () ||
+          e.getType ().isScalar ()))
+    tr_err ("expression '", e, "' is not an integer constant.");
 
   switch (e.getKind ())
     {
@@ -241,7 +242,7 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
           type_t basetype;
           expression_t initval;
 
-          if (is_one_dim_int_array_variable (p, e[0], minsz, maxsz))
+          if (is_one_dim_array_variable (p, e[0], minsz, maxsz))
             {
               translate_expression (out, p, e[0], ctx);
               out << "[";
@@ -472,14 +473,16 @@ utot::translate_event_expression (std::ostream &out, UTAP::instance_t *p,
 }
 
 extern bool
-utot::is_one_dim_int_array_variable (UTAP::instance_t *p, UTAP::expression_t e,
-                                     int &minsz, int &maxsz)
+utot::is_one_dim_array_variable (UTAP::instance_t *p, UTAP::expression_t e,
+                                 int &minsz, int &maxsz)
 {
   type_t basetype;
   expression_t initval;
 
-  if (! is_one_dim_int_array_type (p, e.getType (), minsz, maxsz, basetype))
+  if (!is_one_dim_array_type (p, e.getType (), minsz, maxsz, basetype))
     return false;
   variable_t *v = (variable_t *) e.getSymbol ().getData ();
+  if (v == nullptr)
+    return true;
   return are_all_equals_in_list (p, v->expr, initval);
 }

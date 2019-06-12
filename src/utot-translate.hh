@@ -14,7 +14,7 @@
 
 namespace utot
 {
-    class translation_exception : public exception {
+    class translation_exception : public utot::exception {
     };
 
     extern int
@@ -45,20 +45,22 @@ namespace utot
                             context_prefix_t ctx, UTAP::declarations_t &decl);
 
     extern bool
-    translate_model (UTAP::TimedAutomataSystem &tas, tchecker::outputter &out);
+    translate_model (std::string sysname,
+                     UTAP::TimedAutomataSystem &tas,
+                     tchecker::outputter &out);
 
     extern bool
-    is_one_dim_int_array_type (UTAP::instance_t *p, UTAP::type_t type,
-                               int &minsz, int &maxsz,
-                               UTAP::type_t &basetype);
+    is_one_dim_array_type (UTAP::instance_t *p, UTAP::type_t type,
+                           int &minsz, int &maxsz,
+                           UTAP::type_t &basetype);
 
     extern bool
     are_all_equals_in_list (UTAP::instance_t *p, UTAP::expression_t expr,
                             UTAP::expression_t &val);
 
     extern bool
-    is_one_dim_int_array_variable (UTAP::instance_t *p, UTAP::expression_t e,
-                                   int &minsz, int &maxsz);
+    is_one_dim_array_variable (UTAP::instance_t *p, UTAP::expression_t e,
+                               int &minsz, int &maxsz);
 
     template<typename... Args>
     void

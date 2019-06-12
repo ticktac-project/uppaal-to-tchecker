@@ -13,7 +13,8 @@ using namespace utot;
 static void
 s_compute_range_bounds (UTAP::instance_t *p, type_t tsize, int &min, int &max)
 {
-  while (tsize.getKind () == Constants::LABEL)
+  while (tsize.getKind () == Constants::LABEL ||
+         tsize.getKind () == Constants::CONSTANT)
     tsize = tsize[0];
   assert (tsize.isRange ());
   assert (tsize[0].getKind () == Constants::INT ||
@@ -125,17 +126,18 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
 }
 
 bool
-utot::is_one_dim_int_array_type (UTAP::instance_t *p, UTAP::type_t t,
-                                 int &minsz, int &maxsz,
-                                 UTAP::type_t &basetype)
+utot::is_one_dim_array_type (UTAP::instance_t *p, UTAP::type_t t,
+                             int &minsz, int &maxsz,
+                             UTAP::type_t &basetype)
 {
-  assert (t.getKind () == Constants::ARRAY);
+  assert (t.isArray ());
+
   s_compute_range_bounds (p, t.getArraySize (), minsz, maxsz);
-  basetype = t[0];
-  while (basetype.getKind () == Constants::LABEL)
-    basetype = basetype[0];
+  basetype = t.stripArray ();
 
   return (basetype.getKind () == Constants::BOOL ||
+          basetype.getKind () == Constants::CLOCK ||
+          basetype.getKind () == Constants::INT ||
           basetype.getKind () == Constants::RANGE);
 }
 
@@ -176,6 +178,11 @@ s_declare_one_dim_array (tchecker::outputter &tckout, instance_t *p,
       min = 0;
       max = 1;
     }
+  else if (eltype.isIntegral ())
+    {
+      min = INT16_MIN;
+      max = INT16_MAX;
+    }
   else
     {
       min = eval_integer_constant (p, eltype.getRange ().first);
@@ -189,6 +196,14 @@ s_declare_one_dim_array (tchecker::outputter &tckout, instance_t *p,
   else
     tr_err ("initial value ", ival, " is out of range [", min, ",", max,
             "] for array '", vname, "'.");
+}
+
+static void
+s_declare_one_dim_clock_array (tchecker::outputter &tckout, instance_t *p,
+                               std::string vname, int size)
+{
+  tckout.commentln ("one dim clock array.");
+  tckout.clock (vname, size);
 }
 
 void
@@ -224,8 +239,7 @@ utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
           case Constants::CHANNEL:
           case Constants::BROADCAST:
           case Constants::URGENT:
-            //tchecker::event (out, vname);
-            tckout.commentln ("global event to synchronize: ", vname);
+            tckout.commentln ("global event: ", vname);
 
           break;
 
@@ -239,11 +253,16 @@ utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
               type_t basetype;
               UTAP::expression_t initval;
 
-              if (is_one_dim_int_array_type (p, type, minsz, maxsz, basetype)
+              if (is_one_dim_array_type (p, type, minsz, maxsz, basetype)
                   && are_all_equals_in_list (p, v.expr, initval))
                 {
-                  s_declare_one_dim_array (tckout, p, vname, maxsz - minsz + 1,
-                                           basetype, initval);
+                  int sz = maxsz - minsz + 1;
+                  type_t t = type.stripArray ();
+                  if (t.isClock ())
+                    s_declare_one_dim_clock_array (tckout, p, vname, sz);
+                  else
+                    s_declare_one_dim_array (tckout, p, vname, sz, basetype,
+                                             initval);
                 }
               else
                 {
