@@ -3,21 +3,27 @@
  * synchronization.
  */
 
-const int N = 1;
 chan a;
 
-process Processes(int [1,N] pid) {
-
-state
-    A,
-    B;
-init
-    A;
-trans
+process P1() {
+ state A, B;
+ init A;
+ trans
     A -> B { sync a; },
+    B -> A { };
+}
+
+process P2() {
+ state A, B;
+ init A;
+ trans
+    A -> B { },
     B -> A { sync a; };
 }
 
-P1 := Processes(1);
 
-system P1;
+
+system P1, P2;
+
+IO P1 {a}
+IO P2 {a}

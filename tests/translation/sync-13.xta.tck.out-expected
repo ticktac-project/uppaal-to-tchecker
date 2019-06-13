@@ -1,0 +1,39 @@
+# 
+# This file has been generated automatically with uppaal-to-tchecker
+# 
+system: S
+# a:(broadcast (channel))
+# global event: a
+# b:(broadcast (channel))
+# global event: b
+# no iodecl
+# compilation of process Emitter
+process: Emitter
+location:Emitter:A{initial:}
+event: a_emit
+edge:Emitter:A:A:a_emit{do:nop:provided:1}
+
+# compilation of process R1
+process: R1
+location:R1:A{initial:}
+location:R1:B{}
+location:R1:C{}
+event: a_recv
+edge:R1:A:B:a_recv{do:nop:provided:1}
+event: b_emit
+edge:R1:B:C:b_emit{do:nop:provided:1}
+event: b_recv
+edge:R1:C:A:b_recv{do:nop:provided:1}
+
+# compilation of process R2
+process: R2
+location:R2:A{}
+location:R2:B{}
+location:R2:C{initial:}
+edge:R2:A:B:a_recv{do:nop:provided:1}
+edge:R2:B:C:b_emit{do:nop:provided:1}
+edge:R2:C:A:b_recv{do:nop:provided:1}
+
+sync:Emitter@a_emit:R1@a_recv?:R2@a_recv?
+sync:R1@b_emit:R2@b_recv?
+sync:R1@b_recv?:R2@b_emit

@@ -1,0 +1,6 @@
+$Assumed_IO_but_found_CSP_synchronization at line 21 column 20 to line 21 column 21
+$Assumed_IO_but_found_CSP_synchronization at line 22 column 20 to line 22 column 21
+$Assumed_IO_but_found_CSP_synchronization at line 30 column 20 to line 30 column 21
+$Assumed_IO_but_found_CSP_synchronization at line 31 column 20 to line 31 column 21
+$CSP_and_IO_synchronisations_cannot_be_mixed at line 36 column 7 to line 36 column 8
+$CSP_and_IO_synchronisations_cannot_be_mixed at line 37 column 7 to line 37 column 8

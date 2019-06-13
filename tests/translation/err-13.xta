@@ -21,3 +21,5 @@ trans
 P1 := Processes(1);
 
 system P1;
+
+IO P1{}

@@ -3,8 +3,8 @@
  * synchronization.
  */
 
-const int N = 1;
-chan a;
+const int N = 2;
+chan a,b;
 
 process Processes(int [1,N] pid) {
 
@@ -15,9 +15,12 @@ init
     A;
 trans
     A -> B { sync a; },
-    B -> A { sync a; };
+    B -> A { sync b; };
 }
 
 P1 := Processes(1);
+P2 := Processes(2);
 
-system P1;
+system P1, P2;
+
+

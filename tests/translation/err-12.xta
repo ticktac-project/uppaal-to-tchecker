@@ -1,0 +1,37 @@
+/*
+ * Two processes that emits or receives messages through a broadcast channel
+ * 'a'. Initially only one of both emit a! then they alternate their roles,
+ * emitter or receiver.
+ */
+broadcast chan a;
+chan b;
+
+process Emitter () {
+   state A;
+   init A;
+   trans
+   A -> A { sync a!; };
+}
+
+process R1() {
+    state A, B, C;
+    init A;
+    trans
+      A -> B { sync a?; },
+      B -> C { sync b; },
+      C -> A { sync b; };
+}
+
+process R2() {
+    state A, B, C;
+    init C;
+    trans
+      A -> B { sync a?; },
+      B -> C { sync b; },
+      C -> A { sync b; };
+}
+
+system Emitter, R1, R2;
+
+IO R1 {b}
+IO R2 {b}
