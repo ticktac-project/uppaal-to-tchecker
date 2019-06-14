@@ -1,0 +1,8 @@
+process Q() {
+}
+
+P1 := Q();
+P2 := Q();
+
+system P1, P2;
+

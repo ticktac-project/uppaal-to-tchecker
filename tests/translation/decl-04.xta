@@ -1,0 +1,15 @@
+/*
+ *  The parameter pid is used as a local variable. This yields an error.
+ */
+
+const int N = 5;
+
+process Processes(int [1,N] pid) {
+ state A, B;
+ init A;
+ trans
+    A -> B { guard pid < N; assign pid++;},
+    B -> A { guard pid > 1; assign pid--; };
+}
+
+system Processes;

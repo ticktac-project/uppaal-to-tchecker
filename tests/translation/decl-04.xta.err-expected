@@ -1,0 +1,14 @@
+15.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+15.33-37 in attribute do: ERROR, unexpected expression, statement expected
+16.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+22.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+23.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+29.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+30.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+36.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+37.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+43.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+44.33-37 in attribute do: ERROR, syntax error, unexpected =, expecting end of file (at 1.2)
+ERROR, System compilation failure
+
+12 error(s)

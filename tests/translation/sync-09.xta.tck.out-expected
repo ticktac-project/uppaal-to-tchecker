@@ -13,15 +13,15 @@ process: P1
 location:P1:A{initial:}
 location:P1:B{}
 event: a
-edge:P1:A:B:a{do:nop:provided:1}
+edge:P1:A:B:a{do:nop}
 event: b
-edge:P1:B:A:b{do:nop:provided:1}
+edge:P1:B:A:b{do:nop}
 
 # compilation of process P2
 process: P2
 location:P2:A{initial:}
 location:P2:B{}
-edge:P2:A:B:a{do:nop:provided:1}
-edge:P2:B:A:b{do:nop:provided:1}
+edge:P2:A:B:a{do:nop}
+edge:P2:B:A:b{do:nop}
 
 sync:P1@a:P2@a

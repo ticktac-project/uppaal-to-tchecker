@@ -12,8 +12,8 @@ process: P1
 location:P1:A{initial:}
 location:P1:B{}
 event: a
-edge:P1:A:B:a{do:nop:provided:1}
-edge:P1:B:A:a{do:nop:provided:1}
+edge:P1:A:B:a{do:nop}
+edge:P1:B:A:a{do:nop}
 
 # dummy process used to block emitted/received events that aren't synchronized.
 process: Stuck

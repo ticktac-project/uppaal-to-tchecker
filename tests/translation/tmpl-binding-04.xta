@@ -1,0 +1,13 @@
+/*
+ * A parameter is used as a local variable.
+ */ 
+process R(int &i, const int j)
+{
+  state A;
+  init A;
+  trans A -> A { guard i < 5; assign i++; };
+}
+
+int x = 2;
+S = R(x, 1);
+system S;

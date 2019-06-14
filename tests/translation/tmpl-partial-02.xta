@@ -1,0 +1,15 @@
+/*
+ * Utot does not support (yet) struct.
+ */
+process P(int &x, int y, const int n, const int m)
+{
+}
+
+int v, u;
+const struct { int a, b, c; } data[2] = { { 1, 2, 3 }, { 4, 5, 6 } };
+
+Q(int &x, const int i) = P(x, data[i].a, data[i].b, 2 * data[i].c);
+Q1 = Q(v, 0);
+Q2 = Q(u, 1);
+
+system Q1, Q2;

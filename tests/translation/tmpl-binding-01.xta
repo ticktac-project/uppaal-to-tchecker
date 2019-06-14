@@ -1,0 +1,13 @@
+/*
+ * initialization of a local variable with a non-constant parameter
+ */
+process R(int &i, const int j)
+{
+  int k = i;
+  state A;
+  init A;
+}
+
+int x;
+S = R(x, 1);
+system S;

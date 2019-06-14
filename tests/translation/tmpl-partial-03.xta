@@ -1,0 +1,16 @@
+/*
+ * Use of an unbounded free parameter for instantiation of a template.
+ */
+process P(int &x, int y, const int n, const int m)
+{
+}
+
+int v, u;
+const int data[2][3] = { { 1, 2, 3 }, { 4, 5, 6 } };
+
+Q(int &x, const int i) = P(x, data[i][0], data[i][1], 2 * data[i][2]);
+Q1 = Q(v, 0);
+Q2 = Q(u, 1);
+Q3(const int i) = Q(u,i);
+
+system Q1, Q2, Q3;

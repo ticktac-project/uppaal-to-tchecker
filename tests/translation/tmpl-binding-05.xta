@@ -1,0 +1,10 @@
+const int N = 3;
+
+process Processes(const int [1,N] pid) {
+  int i = pid;
+  state A, B;
+  init A;
+  trans A -> B { guard i < N; assign i++;};
+}
+
+system Processes;

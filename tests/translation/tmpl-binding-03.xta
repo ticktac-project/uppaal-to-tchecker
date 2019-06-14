@@ -1,0 +1,15 @@
+/*
+ * Initialization of a local variable with a reference to a constant.
+ * This doesn't work because the value of the parameter must be computable
+ * at compile-time
+ */
+process R(const int &i, const int j)
+{
+  int k = i;
+  state A;
+  init A;
+}
+
+const int x = 2;
+S = R(x, 1);
+system S;

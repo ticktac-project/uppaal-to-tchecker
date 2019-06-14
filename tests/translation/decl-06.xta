@@ -1,0 +1,78 @@
+//
+// System critical_region_async_3_10
+//
+const int NPROCS = 3;
+const int T = 10;
+typedef int[1,NPROCS] pid_t;
+
+chan ch_enter[pid_t];
+chan ch_exit[pid_t];
+chan id_eq_0, id_lt_NPROCS, id_eq_NPROCS;
+
+int [0,NPROCS] id = 0;
+
+process ID() {
+    state l;
+    init l;
+    trans
+        l->l { guard id == 0; sync id_eq_0; },
+        l->l { guard id < NPROCS; sync id_lt_NPROCS; },
+        l->l { guard id == NPROCS; sync id_eq_NPROCS; },
+        l->l { select pid : pid_t; guard id == pid; sync ch_enter[pid];
+               assign id = 0; },
+        l->l { select pid : pid_t; sync ch_exit[pid]; assign id = pid; };
+}
+
+process Counter() {
+    state I, C;
+    init I;
+    trans
+        I->C { sync id_eq_0; assign id = 1; },
+        C->C { sync id_lt_NPROCS; assign id++; },
+        C->C { sync id_eq_NPROCS; assign id = 1; };
+}
+
+process Arbiter(const pid_t pid) {
+    state req, ack;
+    init req;
+    trans
+        req->ack { sync ch_enter[pid]; },
+        ack->req { sync ch_exit[pid]; };
+}
+
+process ProdCell(const pid_t pid) {
+    clock x;
+    state not_ready,
+          testing { x <= T },
+          requesting,
+          critical { x <= 2*T },
+          testing2 { x <=  T },
+          safe, // labels safe${pid}
+          error; // labels error${pid}
+    init not_ready;
+    trans
+    not_ready->testing { guard x <= 2*T; assign x = 0; },
+    testing->not_ready { guard x >= T; assign x = 0; },
+    testing->requesting { guard x <= T-1; },
+    requesting->critical { sync ch_enter[pid]; assign x = 0; },
+    critical->error { guard x >= 2*T; },
+    critical->testing2 { guard x <= T-1; sync ch_exit[pid]; assign x = 0; },
+    testing2->error { guard x >= T; },
+    testing2->safe { guard x <= T-1; };
+}
+
+P1 := ProdCell(1);
+A1 := Arbiter(1);
+P2 := ProdCell(2);
+A2 := Arbiter(2);
+P3 := ProdCell(3);
+A3 := Arbiter(3);
+system ID, Counter,A1,P1,A2,P2,A3,P3;
+IO ID { id_eq_0, id_lt_NPROCS, id_eq_NPROCS,ch_enter[1],ch_exit[1],ch_enter[2],ch_exit[2],ch_enter[3],ch_exit[3]}
+IO Counter { id_eq_0, id_lt_NPROCS, id_eq_NPROCS }
+IO A1 { ch_enter[1], ch_exit[1] }
+IO P1 { ch_enter[1], ch_exit[1] }
+IO A2 { ch_enter[2], ch_exit[2] }
+IO P2 { ch_enter[2], ch_exit[2] }
+IO A3 { ch_enter[3], ch_exit[3] }
+IO P3 { ch_enter[3], ch_exit[3] }

@@ -1,0 +1,17 @@
+/*
+ * A single process that communicates through a channel 'a' using CSP-like
+ * synchronization.
+ */
+
+const int N = 5;
+
+process Processes(const int [1,N] pid) {
+ int i = pid;
+ state A, B;
+ init A;
+ trans
+    A -> B { guard i < N; assign i++;},
+    B -> A { guard i > 1; assign i--; };
+}
+
+system Processes;
