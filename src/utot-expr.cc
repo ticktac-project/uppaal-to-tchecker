@@ -18,8 +18,8 @@ using namespace utot;
 int
 utot::eval_integer_constant (UTAP::instance_t *p, const UTAP::expression_t &e)
 {
-  if (! (e.getType ().isInteger () || e.getType ().isBoolean () ||
-          e.getType ().isScalar ()))
+  if (!(e.getType ().isInteger () || e.getType ().isBoolean () ||
+        e.getType ().isScalar ()))
     tr_err ("expression '", e, "' is not an integer constant.");
 
   switch (e.getKind ())
@@ -73,9 +73,10 @@ utot::eval_integer_constant (UTAP::instance_t *p, const UTAP::expression_t &e)
         {
           symbol_t s = e.getSymbol ();
           type_t t = s.getType ();
-          if (! t.isConstant ()) {
-            tr_err ("symbol '", s.getName (), "' is not a constant.\n");
-          }
+          if (!t.isConstant ())
+            {
+              tr_err ("symbol '", s.getName (), "' is not a constant.\n");
+            }
           variable_t *v = static_cast<variable_t *> (s.getData ());
 
           if (v == nullptr || v->expr.empty ())
@@ -253,8 +254,15 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
             }
           else
             {
-              translate_expression (out, p, e[0], ctx);
-              out << "_" << eval_integer_constant (p, e[1]);
+              int index = eval_integer_constant (p, e[1]);
+              if (minsz <= index && index <= maxsz)
+                {
+                  translate_expression (out, p, e[0], ctx);
+                  out << "_" << index;
+                }
+              else
+                tr_err ("array index '", index, "' out of bounds [", minsz,
+                        ", ", maxsz, "].");
             }
         }
       break;
