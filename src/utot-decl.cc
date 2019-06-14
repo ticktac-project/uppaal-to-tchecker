@@ -102,8 +102,9 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
     {
       std::ostringstream oss;
       oss << arrayname;
-      for (int s : S)
-        oss << "_" << s;
+
+      for(int i = S.size () - 1; i >= 0; i--)
+        oss << "_" << S[i];
 
       switch (kind)
         {
