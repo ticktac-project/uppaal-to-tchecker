@@ -217,7 +217,9 @@ s_translate_edge (edge_t e, context_prefix_t ctx, event_set_t &local_events,
 
   tchecker::attributes_t attr;
 
-  attr[tchecker::EDGE_PROVIDED] = translate_expression (&p, e.guard, ctx);
+  std::string guard = translate_expression (&p, e.guard, ctx);
+  if (guard != "1")
+    attr[tchecker::EDGE_PROVIDED] = guard;
   attr[tchecker::EDGE_DO] = translate_assignment (&p, e.assign, ctx);
 
   tckout.edge (process, src, tgt, ev, attr);
@@ -277,7 +279,7 @@ s_translate_process (context_prefix_t ctx, instance_t p,
 {
   event_set_t local_events;
 
-  assert(mapping.size () == p.unbound + p.arguments);
+  assert(mapping.size () == p.parameters.getSize ());
   if (p.unbound > 0)
     tckout.commentln ("instantiation as ", ctx);
 
