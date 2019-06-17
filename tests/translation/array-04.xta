@@ -1,0 +1,10 @@
+typedef int [-1,2] sometype_t;
+
+sometype_t tab1[2];
+
+sometype_t tab2[2] = { 1, 1 };
+
+sometype_t tab3[2] = { 0, 1 };
+
+process Process() {}
+system Process;

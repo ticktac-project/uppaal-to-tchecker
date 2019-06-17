@@ -1,0 +1,32 @@
+# 
+# This file has been generated automatically with uppaal-to-tchecker
+# 
+system:S
+# N:(const (int))
+int:1:2:2:2:N
+# a:(channel)
+# global event: a
+# no iodecl
+# compilation of process Processes
+# instantiation as Processes_pid_1
+process:Processes_pid_1
+location:Processes_pid_1:A{initial:}
+location:Processes_pid_1:B{}
+event:a_emit
+edge:Processes_pid_1:A:A:a_emit{}
+event:a_recv
+edge:Processes_pid_1:A:B:a_recv{}
+edge:Processes_pid_1:B:A:a_recv{}
+edge:Processes_pid_1:B:B:a_emit{}
+
+# instantiation as Processes_pid_2
+process:Processes_pid_2
+location:Processes_pid_2:A{initial:}
+location:Processes_pid_2:B{}
+edge:Processes_pid_2:A:A:a_emit{}
+edge:Processes_pid_2:A:B:a_recv{}
+edge:Processes_pid_2:B:A:a_recv{}
+edge:Processes_pid_2:B:B:a_emit{}
+
+sync:Processes_pid_1@a_emit:Processes_pid_2@a_recv
+sync:Processes_pid_1@a_recv:Processes_pid_2@a_emit

@@ -1,22 +1,22 @@
 # 
 # This file has been generated automatically with uppaal-to-tchecker
 # 
-system: S
+system:S
 # N:(const (int))
 int:1:1:1:1:N
 # a:(channel)
 # global event: a
 # no iodecl
 # compilation of process P1
-process: P1
+process:P1
 location:P1:A{initial:}
 location:P1:B{}
-event: a
-edge:P1:A:B:a{do:nop}
-edge:P1:B:A:a{do:nop}
+event:a
+edge:P1:A:B:a{}
+edge:P1:B:A:a{}
 
 # dummy process used to block emitted/received events that aren't synchronized.
-process: Stuck
-event: nosync
+process:Stuck
+event:nosync
 location:Stuck:sink{initial:}
 sync:P1@a:Stuck@nosync

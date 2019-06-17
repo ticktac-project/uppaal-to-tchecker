@@ -1,0 +1,12 @@
+int C[2][2];
+
+process P () {
+   int x;
+   state A;
+   init A;
+   trans
+	A -> A { assign C[x%2][(x+1)%2] = 0, x++;};
+}
+
+system P;
+

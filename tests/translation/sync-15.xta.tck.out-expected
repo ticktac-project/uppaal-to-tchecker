@@ -6,17 +6,30 @@ system:S
 int:1:2:2:2:N
 # a:(channel)
 # global event: a
+# b:(channel)
+# global event: b
+# no iodecl
 # compilation of process P1
 process:P1
 location:P1:A{initial:}
 location:P1:B{}
 event:a
 edge:P1:A:B:a{}
+event:b
+edge:P1:B:A:b{}
 
 # compilation of process P2
 process:P2
 location:P2:A{initial:}
 location:P2:B{}
 edge:P2:A:B:a{}
+edge:P2:B:A:b{}
 
-sync:P1@a:P2@a
+# dummy process used to block emitted/received events that aren't synchronized.
+process:Stuck
+event:nosync
+location:Stuck:sink{initial:}
+sync:P1@a:Stuck@nosync
+sync:P2@a:Stuck@nosync
+sync:P1@b:Stuck@nosync
+sync:P2@b:Stuck@nosync

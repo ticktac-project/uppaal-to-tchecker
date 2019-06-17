@@ -1,0 +1,14 @@
+const int N = 2;
+
+typedef int[1,N] pid_t;
+
+chan a[pid_t];
+
+process Template (const pid_t p) {
+   state A; init A;
+   trans
+	A -> A { sync a[p]!; },
+	A -> A { select j : pid_t; sync a[j]?; };
+}
+
+system Template;

@@ -1,0 +1,12 @@
+clock C[2];
+
+process P () {
+   int x;
+   state A;
+   init A;
+   trans
+	A -> A { guard x < 5; assign C[x%2] = 0, x++;};
+}
+
+system P;
+

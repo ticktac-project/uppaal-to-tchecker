@@ -1,23 +1,23 @@
 # 
 # This file has been generated automatically with uppaal-to-tchecker
 # 
-system: S
+system:S
 # N:(const (int))
 int:1:3:3:3:N
 # no iodecl
 # compilation of process Processes
 # instantiation as Processes_pid_1
-process: Processes_pid_1
+process:Processes_pid_1
 # i:(range (int) "-32768" "32767")
 int:1:-32768:32767:1:Processes_pid_1_i
 location:Processes_pid_1:A{initial:}
 location:Processes_pid_1:B{}
 # global event for Uppaal unlabelled edges
-event: tau
+event:tau
 edge:Processes_pid_1:A:B:tau{do:Processes_pid_1_i=Processes_pid_1_i+1:provided:(Processes_pid_1_i < N)}
 
 # instantiation as Processes_pid_2
-process: Processes_pid_2
+process:Processes_pid_2
 # i:(range (int) "-32768" "32767")
 int:1:-32768:32767:2:Processes_pid_2_i
 location:Processes_pid_2:A{initial:}
@@ -25,7 +25,7 @@ location:Processes_pid_2:B{}
 edge:Processes_pid_2:A:B:tau{do:Processes_pid_2_i=Processes_pid_2_i+1:provided:(Processes_pid_2_i < N)}
 
 # instantiation as Processes_pid_3
-process: Processes_pid_3
+process:Processes_pid_3
 # i:(range (int) "-32768" "32767")
 int:1:-32768:32767:3:Processes_pid_3_i
 location:Processes_pid_3:A{initial:}

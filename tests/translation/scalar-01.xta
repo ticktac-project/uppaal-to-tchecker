@@ -1,0 +1,10 @@
+typedef scalar[5] tt;
+
+process P(tt T) {
+   tt t;
+
+   state A; init A;
+   trans A -> A { assign t = T; } ;
+}
+
+system P;

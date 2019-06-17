@@ -1,0 +1,11 @@
+const int N = 2;
+
+chan a[N];
+
+process Template () {
+   state A; init A;
+   trans
+	A -> A { sync a[3]!; };
+}
+
+system Template;

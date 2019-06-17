@@ -1,7 +1,7 @@
 # 
 # This file has been generated automatically with uppaal-to-tchecker
 # 
-system: S
+system:S
 # v:(range (int) "-32768" "32767")
 int:1:-32768:32767:0:v
 # u:(range (int) "-32768" "32767")
@@ -15,25 +15,25 @@ int:1:5:5:5:data_1_1
 int:1:6:6:6:data_1_2
 # no iodecl
 # compilation of process Q1
-process: Q1
+process:Q1
 location:Q1:A{initial:}
 # global event for Uppaal unlabelled edges
-event: tau
+event:tau
 edge:Q1:A:A:tau{do:v=((data_0_1 * data_0_0) + (2 * data_0_2)):provided:(v < 2)}
 
 # compilation of process Q2
-process: Q2
+process:Q2
 location:Q2:A{initial:}
 edge:Q2:A:A:tau{do:u=((data_1_1 * data_1_0) + (2 * data_1_2)):provided:(u < 2)}
 
 # compilation of process Q3
 # instantiation as Q3_i_0
-process: Q3_i_0
+process:Q3_i_0
 location:Q3_i_0:A{initial:}
 edge:Q3_i_0:A:A:tau{do:u=((data_0_1 * data_0_0) + (2 * data_0_2)):provided:(u < 2)}
 
 # instantiation as Q3_i_1
-process: Q3_i_1
+process:Q3_i_1
 location:Q3_i_1:A{initial:}
 edge:Q3_i_1:A:A:tau{do:u=((data_1_1 * data_1_0) + (2 * data_1_2)):provided:(u < 2)}
 
