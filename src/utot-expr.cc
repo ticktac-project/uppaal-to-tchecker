@@ -465,9 +465,21 @@ utot::translate_event_expression (std::ostream &out, UTAP::instance_t *p,
 
       case Constants::ARRAY :
         {
-          translate_event_expression (out, p, e[0], ctx);
-          out << "_" << eval_integer_constant (p, e[1]);
-          //translate_expression (out, p, e[1], ctx);
+          int minsz, maxsz;
+          int index = eval_integer_constant (p, e[1]);
+          type_t t = e[0].getType ();
+
+          compute_range_bounds (p, t.getArraySize (), minsz, maxsz);
+          if (minsz <= index && index <= maxsz)
+            {
+              translate_event_expression (out, p, e[0], ctx);
+              out << "_" << eval_integer_constant (p, e[1]);
+            }
+          else
+            {
+              tr_err ("array index '", index, "' out of bounds [", minsz,
+                      ", ", maxsz, "].");
+            }
         }
       break;
 

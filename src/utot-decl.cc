@@ -10,8 +10,9 @@
 using namespace UTAP;
 using namespace utot;
 
-static void
-s_compute_range_bounds (UTAP::instance_t *p, type_t tsize, int &min, int &max)
+void
+utot::compute_range_bounds (UTAP::instance_t *p, type_t tsize, int &min,
+                            int &max)
 {
   while (tsize.getKind () == Constants::LABEL ||
          tsize.getKind () == Constants::CONSTANT)
@@ -49,7 +50,7 @@ s_output_integer_variable (tchecker::outputter &tckout, UTAP::instance_t *p,
       max = 1;
     }
   else if (kind == Constants::RANGE)
-    s_compute_range_bounds (p, type, min, max);
+    compute_range_bounds (p, type, min, max);
 
   if (init.empty ())
     {
@@ -84,7 +85,7 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
       type_t subtype = type.getSub ();
       bool noinit = init.empty ();
 
-      s_compute_range_bounds (p, type.getArraySize (), min, max);
+      compute_range_bounds (p, type.getArraySize (), min, max);
 
       int size = init.getSize ();
       if ((max - min + 1) > size && !noinit)
@@ -103,7 +104,7 @@ s_enumerate_array_elements_decl (tchecker::outputter &tckout,
       std::ostringstream oss;
       oss << arrayname;
 
-      for(int i = S.size () - 1; i >= 0; i--)
+      for (int i = S.size () - 1; i >= 0; i--)
         oss << "_" << S[i];
 
       switch (kind)
@@ -133,8 +134,15 @@ utot::is_one_dim_array_type (UTAP::instance_t *p, UTAP::type_t t,
 {
   assert (t.isArray ());
 
-  s_compute_range_bounds (p, t.getArraySize (), minsz, maxsz);
-  basetype = t.stripArray ();
+  compute_range_bounds (p, t.getArraySize (), minsz, maxsz);
+  while (t.getKind () == Constants::REF || t.getKind () == Constants::LABEL)
+    t = t[0];
+  if (t[0].isArray ())
+    return false;
+  t = t[0];
+  while (t.getKind () == Constants::REF || t.getKind () == Constants::LABEL)
+    t = t[0];
+  basetype = t;
 
   return (basetype.getKind () == Constants::BOOL ||
           basetype.getKind () == Constants::CLOCK ||
@@ -152,7 +160,7 @@ utot::are_all_equals_in_list (UTAP::instance_t *p, UTAP::expression_t expr,
   assert (expr.getKind () == Constants::LIST);
 
   int minsz, maxsz;
-  s_compute_range_bounds (p, expr.getType ().getArraySize (), minsz, maxsz);
+  compute_range_bounds (p, expr.getType ().getArraySize (), minsz, maxsz);
   int sz = maxsz - minsz + 1;
   if (expr.getSize () != sz)
     tr_err ("expression { ", expr, " } should have ", sz, " elements.");
@@ -179,18 +187,25 @@ s_declare_one_dim_array (tchecker::outputter &tckout, instance_t *p,
       min = 0;
       max = 1;
     }
-  else if (eltype.isIntegral ())
-    {
-      min = INT16_MIN;
-      max = INT16_MAX;
-    }
-  else
+  else if (eltype.isRange())
     {
       min = eval_integer_constant (p, eltype.getRange ().first);
       max = eval_integer_constant (p, eltype.getRange ().second);
     }
+  else
+    {
+      min = INT16_MIN;
+      max = INT16_MAX;
+    }
 
-  int ival = (init.empty () ? min : eval_integer_constant (p, init));
+  int ival;
+  if (init.empty ())
+    {
+      if (0 <= min || max <= 0) ival = min;
+      else ival = 0;
+    }
+  else
+    ival = eval_integer_constant (p, init);
 
   if (min <= ival && ival <= max)
     tckout.intvar (min, max, ival, vname, size);
@@ -241,7 +256,6 @@ utot::translate_declarations (tchecker::outputter &tckout, UTAP::instance_t *p,
           case Constants::BROADCAST:
           case Constants::URGENT:
             tckout.commentln ("global event: ", vname);
-
           break;
 
           case Constants::CLOCK:

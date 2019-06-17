@@ -49,6 +49,10 @@ namespace utot
                      UTAP::TimedAutomataSystem &tas,
                      tchecker::outputter &out);
 
+    extern void
+    compute_range_bounds (UTAP::instance_t *p, UTAP::type_t tsize,
+                          int &min, int &max);
+
     extern bool
     is_one_dim_array_type (UTAP::instance_t *p, UTAP::type_t type,
                            int &minsz, int &maxsz,
