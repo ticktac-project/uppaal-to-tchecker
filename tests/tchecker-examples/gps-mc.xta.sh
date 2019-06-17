@@ -34,7 +34,7 @@ typedef int [1,NSTATIONS] station_id_t;
 typedef int [1,NSUBSTATIONS+1] substation_id_t;
 
 chan finished[NSTATIONS+1];
-chan start[NSTATIONS][substation_id_t];
+chan start[station_id_t][substation_id_t];
 
 process Station(const station_id_t i) {
     state idle, start_, processing, done;
