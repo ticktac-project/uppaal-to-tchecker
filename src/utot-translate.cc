@@ -220,7 +220,9 @@ s_translate_edge (edge_t e, context_prefix_t ctx, event_set_t &local_events,
   std::string guard = translate_expression (&p, e.guard, ctx);
   if (guard != "1")
     attr[tchecker::EDGE_PROVIDED] = guard;
-  attr[tchecker::EDGE_DO] = translate_assignment (&p, e.assign, ctx);
+  std::string action = translate_assignment (&p, e.assign, ctx);
+  if (action != tchecker::DO_NOP)
+    attr[tchecker::EDGE_DO] = action;
 
   tckout.edge (process, src, tgt, ev, attr);
 }

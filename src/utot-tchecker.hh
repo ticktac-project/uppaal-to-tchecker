@@ -27,6 +27,7 @@ namespace utot
         using attributes_t = basic_attributes_t<std::string>;
 
         const std::string TAU_EVENT = "tau";
+        const std::string DO_NOP = "nop";
         const std::string LOCATION_INITIAL = "initial";
         const std::string LOCATION_INVARIANT = "invariant";
         const std::string LOCATION_COMMITTED = "committed";
@@ -51,25 +52,25 @@ namespace utot
           inline void
           system (std::string id)
           {
-            out_ << "system: " << id << std::endl;
+            out_ << "system:" << id << std::endl;
           }
 
           inline void
           process (std::string id)
           {
-            out_ << "process: " << id << std::endl;
+            out_ << "process:" << id << std::endl;
           }
 
           inline void
           event (std::string id)
           {
-            out_ << "event: " << id << std::endl;
+            out_ << "event:" << id << std::endl;
           }
 
           inline void
           clock (std::string id, int size = 1)
           {
-            out_ << "clock: " << size << ":" << id << std::endl;
+            out_ << "clock:" << size << ":" << id << std::endl;
           }
 
           inline void

@@ -390,7 +390,7 @@ utot::translate_assignment (std::ostream &out, UTAP::instance_t *p,
         if (!eval_integer_constant (nullptr, e))
           s_not_an_assignment (e);
         else
-          out << "nop";
+          out << tchecker::DO_NOP;
       break;
 
       NOT_AN_ASSIGNMENT (NOT, "!");
