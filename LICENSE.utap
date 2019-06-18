@@ -1,0 +1,6 @@
+The sub-directory 'utap' contains the source code of Uppaal Timed Automata
+Parser (also called libutap). In particular the files 'utap/AUTHORS' and
+'utap/LICENSE' shall give you informations about authors and redistribution
+and/or modification conditions for this library.
+
+
