@@ -49,7 +49,6 @@ enum ShortOption {
     SO_HELP = 'h',
     SO_VERBOSE = 'V',
     SO_VERSION = 'v',
-    SO_PLAIN = 0x100,
     SO_XML = 0x101,
     SO_TA = 0x102,
     SO_XTA = 0x103,
@@ -81,7 +80,6 @@ static const struct option OPTIONS[] = {
     {"erase",   no_argument, nullptr, SO_ERASE},
     {"xta",     no_argument, nullptr, SO_XTA},
     {"xml",     no_argument, nullptr, SO_XML},
-    {"plain",   no_argument, nullptr, SO_PLAIN},
     {"sysname", required_argument, nullptr, SO_SYSNAME},
     {"ta",      no_argument, nullptr, SO_TA},
     {"version", no_argument, nullptr, SO_VERSION},
@@ -114,9 +112,6 @@ s_usage (const char *cmd, std::ostream &out)
       << "--xml"
       << " \t\t enforce XML as input format" << std::endl
 
-      << "--txt"
-      << " \t\t enforce raw text as input format" << std::endl
-
       << "--xta"
       << " \t\t enforce XTA as input language" << std::endl
 
@@ -124,14 +119,14 @@ s_usage (const char *cmd, std::ostream &out)
       << " \t\t enforce TA as input language" << std::endl
 
       << "--sysname id"
-        << " \t\t specify the label of teh system" << std::endl
+        << " \t specify the label of teh system" << std::endl
 
       << "-- \t\t specify the end of options (if necessary)" << std::endl
       << std::endl
       << "If no input file is specified, the standard input is used."
       << std::endl
-      << "If several 'xta', 'xml', 'ta' or 'txt' options are used the last one "
-         "is used."
+      << "If several 'xta', 'xml' or 'ta' options are used the last one "
+         "prevails."
       << std::endl
       << std::endl;
 }
@@ -169,18 +164,17 @@ s_parse_options (int argc, char **argv)
 
           case SO_TA:
             enforced_language = LANG_TA;
+            enforced_format = FORMAT_PLAIN;
           break;
 
           case SO_XTA:
             enforced_language = LANG_XTA;
+            enforced_format = FORMAT_PLAIN;
           break;
 
           case SO_XML:
             enforced_format = FORMAT_XML;
-          break;
-
-          case SO_PLAIN:
-            enforced_format = FORMAT_PLAIN;
+            enforced_language = LANG_XTA;
           break;
 
           case SO_VERSION:
