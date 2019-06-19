@@ -100,9 +100,24 @@ utot::eval_integer_constant (UTAP::instance_t *p, const UTAP::expression_t &e)
 
       case Constants::ARRAY :
         {
+          int min, max;
           expression_t a = e[0];
           int index = eval_integer_constant (p, e[1]);
-          return eval_integer_constant (p, a[index]);
+
+          assert (a.getType ().isArray());
+          type_t t = a.getType ().getArraySize ();
+          compute_range_bounds (p, t, min, max);
+
+          if (! (min <= index && index <= max))
+            tr_err ("array index ", index, " out of bounds [", min, ", ",
+                max, "].");
+          if (a.getKind () != Constants::IDENTIFIER)
+            tr_err ("don't know how to evaluate this array '", a, "'.");
+          variable_t *var = (variable_t *) a.getSymbol().getData ();
+          if (var->expr.empty ())
+            tr_err ("don't know how to evaluate this array '", a, "'.");
+
+          return eval_integer_constant (p, var->expr[index-min]);
         }
 
       case Constants::LIST :

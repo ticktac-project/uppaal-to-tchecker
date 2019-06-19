@@ -157,7 +157,15 @@ utot::are_all_equals_in_list (UTAP::instance_t *p, UTAP::expression_t expr,
   if (expr.empty ())
     return true;
 
-  assert (expr.getKind () == Constants::LIST);
+  assert (expr.getType().isArray());
+
+  if (expr.getKind () == Constants::IDENTIFIER)
+    {
+      variable_t * var = (variable_t *)expr.getSymbol ().getData ();
+      if (var->expr.empty ())
+        tr_err ("don't know how to evaluate array '", expr, "'.");
+      expr = var->expr;
+    }
 
   int minsz, maxsz;
   compute_range_bounds (p, expr.getType ().getArraySize (), minsz, maxsz);
