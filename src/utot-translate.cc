@@ -6,8 +6,8 @@
 #include <cassert>
 #include <sstream>
 #include <functional>
-#include "utot.hh"
 #include "utot-contextprefix.hh"
+#include "utot.hh"
 #include "utot-translate.hh"
 #include "utot-tchecker.hh"
 

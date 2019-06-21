@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 project(uppaal_to_tcheker LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
+include(CheckCXXCompilerFlag)
+
+check_cxx_compiler_flag("-std=c++11" CXX11_IS_SUPPORTED)
+if(CXX11_IS_SUPPORTED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 #

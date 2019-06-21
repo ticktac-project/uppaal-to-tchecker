@@ -4,8 +4,9 @@
  * See files AUTHORS and LICENSE for copyright details.
  */
 #include <cassert>
-#include "utot-tchecker.hh"
 #include "utot-translate.hh"
+#include "utot-tchecker.hh"
+
 
 using namespace UTAP;
 using namespace utot;

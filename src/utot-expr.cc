@@ -4,8 +4,8 @@
  * See files AUTHORS and LICENSE for copyright details.
  */
 #include <cassert>
-#include "utot.hh"
 #include "utot-translate.hh"
+#include "utot.hh"
 
 #define EVAL_BINARY(k_, e_, op_)            \
   case Constants::k_: \
@@ -220,20 +220,13 @@ utot::translate_expression (std::ostream &out, UTAP::instance_t *p,
       BINARY_OP (GT, ">");
 
       case Constants::INLINEIF :
-        if (e[1].getType ().isIntegral ())
-          {
-            out << "(((";
-            translate_expression (out, p, e[0], ctx);
-            out << ") == 1) * (";
-            translate_expression (out, p, e[1], ctx);
-            out << ") + (((";
-            translate_expression (out, p, e[0], ctx);
-            out << ") == 0) * (";
-            translate_expression (out, p, e[2], ctx);
-            out << ")))";
-          }
-        else
-          tr_err ("if-then-else unsupported with complex condition '", e, "'.");
+        out << "(if ";
+        translate_expression (out, p, e[0], ctx);
+        out << " then ";
+        translate_expression (out, p, e[1], ctx);
+        out << " else ";
+        translate_expression (out, p, e[2], ctx);
+        out << ")";
       break;
 
       case Constants::IDENTIFIER :

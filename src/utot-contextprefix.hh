@@ -8,13 +8,14 @@
 # define UPPAAL_TO_TCHEKER_UTOT_CONTEXTPREFIX_HH
 
 # include <set>
+#include <iostream>
 # include <sstream>
 # include <utap/utap.h>
 
 namespace utot
 {
-    typedef std::deque<std::string> context_prefix_t;
-
+  //typedef std::deque<std::string> context_prefix_t;
+  using context_prefix_t=std::deque<std::string> ;
     /*
     class ContextPrefix {
 

@@ -48,11 +48,25 @@ function(build_utap srcdir bindir instdirvar resvar)
 
     file(MAKE_DIRECTORY "${bindir}")
 
+    execute_process(COMMAND autoreconf -i
+                    RESULT_VARIABLE UTAP_CONF_OK
+                    WORKING_DIRECTORY "${srcdir}")
+    if (NOT UTAP_CONF_OK EQUAL 0)
+        message(FATAL_ERROR "Fail to run 'autoreconf' in '${srcdir}' internal UTAP package.")
+        return()
+    endif ()
+
+    set(ENV{CXX} "${CMAKE_CXX_COMPILER}")
+    set(ENV{CXXFLAGS} "${CMAKE_CXX_FLAGS}")
     execute_process(COMMAND ${srcdir}/configure --prefix=${instdir}
                     RESULT_VARIABLE UTAP_CONF_OK
                     WORKING_DIRECTORY "${bindir}")
     if (NOT UTAP_CONF_OK EQUAL 0)
-        message(FATAL_ERROR "Fail to con-figure internal UTAP package.")
+        file(STRINGS "${bindir}/config.log" cfglog)
+        foreach(line ${cfglog})
+            message("${cfglog}")
+        endforeach()
+        message(FATAL_ERROR "Fail to configure internal UTAP package.")
         return()
     endif ()
     execute_process(COMMAND make -j 4
@@ -60,7 +74,7 @@ function(build_utap srcdir bindir instdirvar resvar)
                     WORKING_DIRECTORY "${bindir}")
 
     if (NOT UTAP_BUILD_OK EQUAL 0)
-        message(FATAL_ERROR "An error occurs while compile UTAP library.")
+        message(FATAL_ERROR "An error occurs while compiling UTAP library.")
         return()
     endif ()
     execute_process(COMMAND make install

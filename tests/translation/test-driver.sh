@@ -35,7 +35,8 @@ check_expected_file() {
     IS_ERR="$2"
     if test -f ${EXPECTED}; then
         if ! cmp -s ${FILE} ${EXPECTED}; then
-            echo 1>&2 "${f} and ${SRCDIR}/${f}-expected differs."
+            echo 1>&2 "${f} and ${EXPECTED} differs. try:"
+	    echo 1>&2 "diff ${f} ${EXPECTED}"
             exit 1
         fi
     elif test "${IS_ERR}" = "yes" -a -s "${FILE}"; then
