@@ -13,8 +13,8 @@ if(NOT TCHECKER)
 else()
     add_subdirectory(tchecker-examples)
     add_subdirectory(uppaal-examples)
+    add_subdirectory(translation)
 endif(NOT TCHECKER)
 
-add_subdirectory(translation)
 
 
