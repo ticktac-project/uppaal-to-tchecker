@@ -12,3 +12,6 @@ add_executable(utot utot.cpp utot.hh utot-translate.cc utot-translate.hh
 target_include_directories(utot PRIVATE ${LIBUTAP_INCLUDES})
 target_include_directories(utot PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(utot ${LIBUTAP_LIBRARIES})
+
+install(TARGETS utot
+        RUNTIME DESTINATION bin)
