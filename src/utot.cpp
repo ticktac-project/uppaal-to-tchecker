@@ -119,7 +119,7 @@ s_usage (const char *cmd, std::ostream &out)
       << " \t\t enforce TA as input language" << std::endl
 
       << "--sysname id"
-        << " \t specify the label of teh system" << std::endl
+        << " \t specify the label of the system" << std::endl
 
       << "-- \t\t specify the end of options (if necessary)" << std::endl
       << std::endl
