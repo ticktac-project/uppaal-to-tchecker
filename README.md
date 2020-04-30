@@ -7,7 +7,7 @@ As its name suggests `uppaal-to-tchecker` (or `utot` for short) is a tool used
 to translate files produced by [Uppaal] to the new timed-automata 
 model-checker [TChecker]. `utot` does not support the whole specification 
 language of Uppaal but it should be sufficient for lots of cases; see 
-[Limitations](doc/limitations.md) for details. 
+[this document](doc/translation.md) for details. 
 
 
 `uppaal-to-tchecker` is part of the [Ticktac Project](http://ticktac-project.github.io) and is partially supported by funds ANR-18-CE40-0015.
